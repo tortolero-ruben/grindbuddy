@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Dialog from '$lib/components/ui/Dialog.svelte';
+	import { enhance } from '$app/forms';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Textarea from '$lib/components/ui/Textarea.svelte';
 	import Select from '$lib/components/ui/Select.svelte';
@@ -79,7 +80,7 @@
 </script>
 
 {#if $selectedProblem}
-	<Dialog {open} onClose={onClose} class="md:flex">
+	<Dialog {open} {onClose} class="md:flex">
 		<div class="p-6">
 			<!-- Header -->
 			<div class="mb-6">
@@ -93,7 +94,22 @@
 			</div>
 
 			<!-- Form -->
-			<form onsubmit={(e) => { e.preventDefault(); handleSave(); }} class="space-y-6">
+			<form
+				method="POST"
+				action="/?/createLog"
+				use:enhance={() => {
+					return async ({ result, update }) => {
+						if (result.type === 'success') {
+							onClose();
+							await update();
+						}
+					};
+				}}
+				class="space-y-6"
+			>
+				<input type="hidden" name="problemId" value={$selectedProblem.id} />
+				<input type="hidden" name="status" value={outcome} />
+
 				<!-- Outcome Section -->
 				<fieldset>
 					<legend class="mb-2 block text-sm font-medium">Outcome (Required)</legend>
@@ -106,7 +122,7 @@
 								class="flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-colors {isSelected
 									? `${statusColors[status]} border-transparent text-white`
 									: 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 hover:bg-slate-50 dark:hover:bg-slate-900'}"
-								onclick={() => outcome = status}
+								onclick={() => (outcome = status)}
 							>
 								<Icon class="h-5 w-5" />
 								<span class="text-xs">{status}</span>
@@ -118,12 +134,26 @@
 				<!-- Complexity Section -->
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label for="time-complexity" class="mb-2 block text-sm font-medium">Time Complexity (Optional)</label>
-						<Select id="time-complexity" options={complexityOptions} bind:value={timeComplexity} />
+						<label for="time-complexity" class="mb-2 block text-sm font-medium"
+							>Time Complexity (Optional)</label
+						>
+						<Select
+							name="timeComplexity"
+							id="time-complexity"
+							options={complexityOptions}
+							bind:value={timeComplexity}
+						/>
 					</div>
 					<div>
-						<label for="space-complexity" class="mb-2 block text-sm font-medium">Space Complexity (Optional)</label>
-						<Select id="space-complexity" options={complexityOptions} bind:value={spaceComplexity} />
+						<label for="space-complexity" class="mb-2 block text-sm font-medium"
+							>Space Complexity (Optional)</label
+						>
+						<Select
+							name="spaceComplexity"
+							id="space-complexity"
+							options={complexityOptions}
+							bind:value={spaceComplexity}
+						/>
 					</div>
 				</div>
 
@@ -131,6 +161,7 @@
 				<div>
 					<label for="notes" class="mb-2 block text-sm font-medium">Notes (Required)</label>
 					<Textarea
+						name="notes"
 						id="notes"
 						bind:value={notes}
 						placeholder="Briefly explain the intuition..."
@@ -141,12 +172,9 @@
 				<!-- Footer -->
 				<div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
 					<Button variant="secondary" onclick={onClose} type="button">Cancel</Button>
-					<Button variant="primary" onclick={handleSave} disabled={!canSave} type="submit">
-						Save Log
-					</Button>
+					<Button variant="primary" disabled={!canSave} type="submit">Save Log</Button>
 				</div>
 			</form>
 		</div>
 	</Dialog>
 {/if}
-

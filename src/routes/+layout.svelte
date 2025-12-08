@@ -6,9 +6,17 @@
 	import MobileNav from '$lib/components/nav/MobileNav.svelte';
 	import ProblemSearchModal from '$lib/components/modals/ProblemSearchModal.svelte';
 	import LogDetailsModal from '$lib/components/modals/LogDetailsModal.svelte';
-	import { isSearchModalOpen, isLogModalOpen, closeSearchModal, closeLogModal } from '$lib/stores/logsStore';
+	import { isSearchModalOpen, isLogModalOpen, closeSearchModal, closeLogModal, initializeStores } from '$lib/stores/logsStore';
+	import { onMount } from 'svelte';
 
 	let { data, children } = $props();
+	
+	$effect(() => {
+		if (data.problems && data.logs) {
+			initializeStores({ problems: data.problems, logs: data.logs });
+		}
+	});
+
 	const isAuthRoute = $derived(
 		$page.url.pathname === '/' || $page.url.pathname.startsWith('/login') || $page.url.pathname.startsWith('/register')
 	);

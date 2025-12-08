@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import FilterToolbar from '$lib/components/logbook/FilterToolbar.svelte';
 	import LogTable from '$lib/components/logbook/LogTable.svelte';
-	import LogCard from '$lib/components/logbook/LogCard.svelte';
+	import ProblemCard from '$lib/components/dashboard/ProblemCard.svelte';
 	import { problemsWithLogs } from '$lib/stores/logsStore';
 	import { get } from 'svelte/store';
 	import type { Pattern, Status, Difficulty } from '$lib/types';
@@ -11,6 +11,8 @@
 	let selectedPattern = $state('');
 	let selectedStatus = $state('');
 	let selectedDifficulty = $state('');
+	let selectedDateRange = $state('');
+	let selectedTimeComplexity = $state('');
 
 	// Get initial filter from URL
 	$effect(() => {
@@ -46,6 +48,31 @@
 			filtered = filtered.filter((p) => p.difficulty === (selectedDifficulty as Difficulty));
 		}
 
+		if (selectedTimeComplexity) {
+			filtered = filtered.filter((p) => p.lastLog?.timeComplexity === selectedTimeComplexity);
+		}
+
+		if (selectedDateRange) {
+			const now = new Date();
+			const oneDay = 24 * 60 * 60 * 1000;
+			
+			filtered = filtered.filter((p) => {
+				if (!p.lastLog) return false;
+				const logDate = new Date(p.lastLog.timestamp);
+				
+				switch (selectedDateRange) {
+					case '7d':
+						return (now.getTime() - logDate.getTime()) < (7 * oneDay);
+					case '30d':
+						return (now.getTime() - logDate.getTime()) < (30 * oneDay);
+					case 'this_month':
+						return logDate.getMonth() === now.getMonth() && logDate.getFullYear() === now.getFullYear();
+					default:
+						return true;
+				}
+			});
+		}
+
 		return filtered;
 	});
 
@@ -54,6 +81,8 @@
 		selectedPattern = '';
 		selectedStatus = '';
 		selectedDifficulty = '';
+		selectedDateRange = '';
+		selectedTimeComplexity = '';
 	}
 </script>
 
@@ -65,10 +94,14 @@
 		bind:selectedPattern
 		bind:selectedStatus
 		bind:selectedDifficulty
-		onSearchChange={(v) => searchQuery = v}
-		onPatternChange={(v) => selectedPattern = v}
-		onStatusChange={(v) => selectedStatus = v}
-		onDifficultyChange={(v) => selectedDifficulty = v}
+		bind:selectedDateRange
+		bind:selectedTimeComplexity
+		onSearchChange={(v) => (searchQuery = v)}
+		onPatternChange={(v) => (selectedPattern = v)}
+		onStatusChange={(v) => (selectedStatus = v)}
+		onDifficultyChange={(v) => (selectedDifficulty = v)}
+		onDateRangeChange={(v) => (selectedDateRange = v)}
+		onTimeComplexityChange={(v) => (selectedTimeComplexity = v)}
 		onClear={clearFilters}
 	/>
 
@@ -86,10 +119,9 @@
 			<!-- Mobile: Card View -->
 			<div class="md:hidden space-y-4">
 				{#each filteredProblems as problem}
-					<LogCard {problem} />
+					<ProblemCard {problem} />
 				{/each}
 			</div>
 		{/if}
 	</div>
 </div>
-
