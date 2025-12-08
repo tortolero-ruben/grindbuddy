@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Enable corepack for pnpm
 RUN corepack enable
+RUN pnpm add -g turbo
 
 # Copy monorepo workspace configs
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
