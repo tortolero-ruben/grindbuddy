@@ -3,7 +3,7 @@
 	import Input from '$lib/components/ui/Input.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import DifficultyBadge from '$lib/components/ui/DifficultyBadge.svelte';
-	import { searchProblems } from '$lib/data/mockProblems';
+	// import { searchProblems } from '$lib/data/mockProblems';
 	import { problems, closeSearchModal, openLogModal } from '$lib/stores/logsStore';
 	import { onMount } from 'svelte';
 	import type { Problem } from '$lib/types';
@@ -19,7 +19,14 @@
 	let selectedIndex = $state(-1);
 	let searchInput: HTMLInputElement;
 
-	const searchResults = $derived(searchProblems(searchQuery, $problems));
+	const searchResults = $derived(
+		!searchQuery.trim() 
+			? [] 
+			: $problems.filter(p => 
+					p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+					p.number.toString().includes(searchQuery)
+			  )
+	);
 
 	$effect(() => {
 		if (open) {
@@ -48,10 +55,10 @@
 	}
 </script>
 
-<Dialog {open} onClose={onClose} class="md:flex">
+<Dialog {open} {onClose} class="md:flex">
 	<div class="p-6">
 		<h2 class="mb-4 text-xl font-semibold">Search Problems</h2>
-		
+
 		<input
 			bind:this={searchInput}
 			bind:value={searchQuery}
@@ -66,14 +73,16 @@
 					{#each searchResults as result, index}
 						<li>
 							<button
-								class="w-full px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {selectedIndex === index
+								class="w-full px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {selectedIndex ===
+								index
 									? 'bg-slate-100 dark:bg-slate-800'
 									: ''}"
 								onclick={() => selectProblem(result)}
 							>
 								<div class="flex items-center justify-between">
 									<span class="font-mono font-semibold">
-										#{result.number} {result.title}
+										#{result.number}
+										{result.title}
 									</span>
 									<DifficultyBadge difficulty={result.difficulty} />
 								</div>
@@ -84,10 +93,7 @@
 			{:else}
 				<div class="py-8 text-center text-slate-600 dark:text-slate-400">
 					<p class="mb-4">Problem not found.</p>
-					<button
-						class="text-indigo-600 dark:text-indigo-400 hover:underline"
-						onclick={onClose}
-					>
+					<button class="text-indigo-600 dark:text-indigo-400 hover:underline" onclick={onClose}>
 						Log Manually
 					</button>
 				</div>
@@ -95,4 +101,3 @@
 		{/if}
 	</div>
 </Dialog>
-

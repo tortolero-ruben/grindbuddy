@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
+import { getProblems, getLogs } from '$lib/server/db';
 
 const isPublicRoute = (pathname: string) =>
 	pathname.startsWith('/login') ||
@@ -12,8 +13,13 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(302, `/login?redirectTo=${redirectTo}`);
 	}
 
+	const problems = await getProblems();
+	const logs = locals.user ? await getLogs(locals.user.id) : [];
+
 	return {
-		user: locals.user
+		user: locals.user,
+		problems: problems as any,
+		logs: logs as any
 	};
 };
 

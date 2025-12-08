@@ -1,10 +1,18 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
-import { env } from '$env/dynamic/private';
+import { db, schema } from '@repo/db';
+import { eq, desc } from 'drizzle-orm';
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+const { problems, logs } = schema;
 
-const client = postgres(env.DATABASE_URL);
+export { db };
 
-export const db = drizzle(client, { schema });
+export async function getProblems() {
+    return await db.select().from(problems);
+}
+
+export async function getLogs(userId: string) {
+    return await db
+        .select()
+        .from(logs)
+        .where(eq(logs.userId, userId))
+        .orderBy(desc(logs.timestamp));
+}
