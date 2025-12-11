@@ -13,8 +13,30 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 		throw redirect(302, `/login?redirectTo=${redirectTo}`);
 	}
 
-	const problems = await getProblems();
-	const logs = locals.user ? await getLogs(locals.user.id) : [];
+	// Only fetch problems and logs for authenticated routes
+	// Public routes like /login don't need this data
+	const isPublic = isPublicRoute(url.pathname);
+	
+	let problems: Awaited<ReturnType<typeof getProblems>> = [];
+	let logs: Awaited<ReturnType<typeof getLogs>> = [];
+
+	if (!isPublic) {
+		try {
+			problems = await getProblems();
+		} catch (error) {
+			console.error('Failed to fetch problems:', error);
+			// Continue with empty array instead of crashing
+		}
+
+		if (locals.user) {
+			try {
+				logs = await getLogs(locals.user.id);
+			} catch (error) {
+				console.error('Failed to fetch logs:', error);
+				// Continue with empty array instead of crashing
+			}
+		}
+	}
 
 	return {
 		user: locals.user,
