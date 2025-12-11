@@ -60,7 +60,7 @@ ENV PORT=3000
 ENV NODE_ENV=production
 EXPOSE 3000
 
-# Create entrypoint script that runs migrations before starting the app
-COPY --from=builder --chown=sveltekit:nodejs /app/pruned/packages/db/src/migrate.ts ./packages/db/src/migrate.ts 2>/dev/null || echo "Migration script will use runtime version"
+# Migration script should already be copied from packages directory above (line 57)
+# This line is kept for reference but the file should already exist
 
 CMD ["node", "build"]
