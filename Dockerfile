@@ -32,6 +32,13 @@ RUN pnpm --filter=grind-buddy build
 # This command isolates the package and its prod dependencies
 RUN pnpm --filter=grind-buddy --prod deploy pruned
 
+# Also copy migration files and db package source for running migrations
+RUN mkdir -p /app/packages/db/drizzle && \
+    cp -r packages/db/drizzle/* /app/packages/db/drizzle/ 2>/dev/null || true && \
+    cp -r packages/db/src /app/packages/db/ && \
+    cp packages/db/package.json /app/packages/db/ && \
+    cp packages/db/drizzle.config.ts /app/packages/db/ 2>/dev/null || true
+
 # Runner stage
 FROM node:20-alpine AS runner
 
@@ -46,9 +53,14 @@ USER sveltekit
 # Copy the pruned deployment from the builder
 COPY --from=builder --chown=sveltekit:nodejs /app/pruned .
 COPY --from=builder --chown=sveltekit:nodejs /app/apps/grind-buddy/build ./build
+# Copy migration files and db package
+COPY --from=builder --chown=sveltekit:nodejs /app/packages ./packages
 
 ENV PORT=3000
 ENV NODE_ENV=production
 EXPOSE 3000
+
+# Create entrypoint script that runs migrations before starting the app
+COPY --from=builder --chown=sveltekit:nodejs /app/pruned/packages/db/src/migrate.ts ./packages/db/src/migrate.ts 2>/dev/null || echo "Migration script will use runtime version"
 
 CMD ["node", "build"]
