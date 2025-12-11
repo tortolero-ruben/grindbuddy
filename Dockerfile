@@ -22,7 +22,10 @@ COPY packages/db ./packages/db
 
 # Build the application
 WORKDIR /app/apps/grind-buddy
-RUN pnpm run build
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" \
+    AUTH_SECRET="dummy_secret_for_build_process_only_32_chars" \
+    AUTH_URL="http://localhost:3000" \
+    pnpm run build
 
 # Runtime stage
 FROM node:20-alpine AS runner
