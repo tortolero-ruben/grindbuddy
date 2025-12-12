@@ -6,7 +6,11 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), devtoolsJson()],
 	server: {
-		host: process.env.HOST || '0.0.0.0',
+		host: true,
+		port: Number(process.env.PORT) || 5173
+	},
+	preview: {
+		host: true,
 		port: Number(process.env.PORT) || 5173
 	}
 });

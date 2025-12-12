@@ -7,14 +7,27 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Enable corepack for pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+RUN pnpm add -g turbo
 
-# Copy the entire monorepo (relies on .dockerignore to exclude node_modules, etc.)
-COPY . .
+# Copy package files first for dependency installation
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+COPY .npmrc ./.npmrc
 
-# Install dependencies for the entire workspace
-# We need devDependencies to build the apps
+# Copy workspace manifests for dependency installation (keeps install layer cacheable)
+COPY packages/auth/package.json ./packages/auth/
+COPY packages/db/package.json ./packages/db/
+COPY packages/tsconfig/package.json ./packages/tsconfig/
+COPY apps/grind-buddy/package.json ./apps/grind-buddy/
+
+# Install dependencies for the entire workspace (cacheable)
 RUN pnpm install --frozen-lockfile
+
+# Now copy the source code
+COPY packages ./packages
+COPY apps ./apps
 
 # Build the application
 # We need to set the environment variables that are used at build time by the adapter
@@ -56,9 +69,10 @@ COPY --from=builder --chown=sveltekit:nodejs /app/apps/grind-buddy/build ./build
 # Copy migration files and db package
 COPY --from=builder --chown=sveltekit:nodejs /app/packages ./packages
 
-ENV PORT=3000
+ENV PORT=5173
+ENV HOST=0.0.0.0
 ENV NODE_ENV=production
-EXPOSE 3000
+EXPOSE 5173
 
 # Migration script should already be copied from packages directory above (line 57)
 # This line is kept for reference but the file should already exist
