@@ -9,6 +9,8 @@ WORKDIR /app
 # Enable corepack for pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+# Disable git hooks during image builds
+ENV HUSKY=0
 RUN corepack enable
 RUN pnpm add -g turbo
 
@@ -43,7 +45,7 @@ RUN pnpm --filter=grind-buddy build
 
 # Deploy the pruned production dependencies and built artifacts to a specific directory
 # This command isolates the package and its prod dependencies
-RUN pnpm --filter=grind-buddy --prod deploy pruned
+RUN pnpm --ignore-scripts --filter=grind-buddy --prod deploy pruned
 
 # Also copy migration files and db package source for running migrations
 RUN mkdir -p /app/packages/db/drizzle && \

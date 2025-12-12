@@ -3,9 +3,13 @@ import type { LayoutServerLoad } from './$types';
 import { getProblems, getLogs } from '$lib/server/db';
 
 const isPublicRoute = (pathname: string) =>
+	pathname === '/' ||
 	pathname.startsWith('/login') ||
 	pathname.startsWith('/register') ||
-	pathname.startsWith('/api/auth');
+	pathname.startsWith('/api/auth') ||
+	pathname === '/api/health' ||
+	pathname === '/favicon.ico' ||
+	pathname === '/robots.txt';
 
 export const load: LayoutServerLoad = async ({ locals, url }) => {
 	if (!locals.user && !isPublicRoute(url.pathname)) {
@@ -16,7 +20,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	// Only fetch problems and logs for authenticated routes
 	// Public routes like /login don't need this data
 	const isPublic = isPublicRoute(url.pathname);
-	
+
 	let problems: Awaited<ReturnType<typeof getProblems>> = [];
 	let logs: Awaited<ReturnType<typeof getLogs>> = [];
 
@@ -40,8 +44,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 
 	return {
 		user: locals.user,
-		problems: problems as any,
-		logs: logs as any
+		problems,
+		logs
 	};
 };
-
