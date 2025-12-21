@@ -18,7 +18,14 @@ export type Pattern =
 	| 'Greedy'
 	| 'Intervals'
 	| 'Math & Geometry'
-	| 'Bit Manipulation';
+	| 'Bit Manipulation'
+	| 'Recursion'
+	| 'String'
+	| 'Object-Oriented Design'
+	| 'Blind 75'
+	| 'System Design'
+	| 'Concurrency';
+
 
 export interface Problem {
 	id: string;

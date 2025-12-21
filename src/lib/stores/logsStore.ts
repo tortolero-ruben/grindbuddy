@@ -41,7 +41,7 @@ export const problemsWithLogs = derived([problems, logs], ([$problems, $logs]) =
 
 export const reviewQueue = derived(problemsWithLogs, ($problemsWithLogs) => {
 	return $problemsWithLogs.filter((problem) => {
-		if (!problem.lastLog) return true; // Never logged, needs review
+		if (!problem.lastLog) return false; // Never logged, NOT in review queue
 		if (problem.lastLog.status === 'Failed') return true; // Failed problems need review
 
 		const daysSinceLastLog =
