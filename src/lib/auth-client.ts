@@ -1,8 +1,5 @@
-import { env } from '$env/dynamic/public';
-import { createAuthClient } from 'better-auth/svelte';
+import { createAuthClient } from "better-auth/svelte";
 
 export const authClient = createAuthClient({
-	baseURL: env.PUBLIC_AUTH_URL || undefined
+	baseURL: "http://localhost:5173" // Adjust if needed
 });
-
-export const { signIn, signUp, signOut, useSession } = authClient;

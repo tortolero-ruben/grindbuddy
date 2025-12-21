@@ -1,7 +1,7 @@
-import { auth } from '@repo/auth';
+import { createAuthClient } from '@neondatabase/auth';
 import { redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { applyAuthCookies } from '$lib/server/auth';
+import { env } from '$env/dynamic/private';
 
 export const load: PageServerLoad = async () => {
 	return {};
@@ -10,13 +10,18 @@ export const load: PageServerLoad = async () => {
 export const actions: Actions = {
 	default: async ({ request, cookies, locals }) => {
 		try {
-			await auth.api.signOut({ headers: request.headers });
+			const neonAuthUrl = env.NEON_AUTH_BASE_URL;
+			if (neonAuthUrl) {
+				const auth = createAuthClient(neonAuthUrl);
+				await auth.signOut({ headers: request.headers });
+			}
 		} catch (error) {
 			// ignore sign-out failures; continue clearing local state
 		}
 
-		// Manually clear session cookie to be safe
-		cookies.delete('ba_session', { path: '/' });
+		// Clear session cookies
+		cookies.delete('neon_auth_session', { path: '/' });
+		cookies.delete('neon_auth_token', { path: '/' });
 
 		locals.user = null;
 		locals.session = null;

@@ -1,7 +1,6 @@
-import { auth } from '@repo/auth';
+import { auth } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { applyAuthCookies } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (locals.user) {
@@ -12,7 +11,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, cookies, locals, url }) => {
+	default: async ({ request, locals, url }) => {
 		const form = await request.formData();
 		const email = String(form.get('email') ?? '').trim().toLowerCase();
 		const password = String(form.get('password') ?? '');
@@ -22,31 +21,30 @@ export const actions: Actions = {
 		}
 
 		try {
-			const response = await auth.api.signInEmail({
-				body: { email, password },
-				headers: request.headers
+			const result = await auth.api.signInEmail({
+				body: { email, password }
+				// sveltekitCookies plugin handles cookies via getRequestEvent
 			});
 
-			const payload = await response.json().catch(() => null);
-
-			if (!response.ok) {
-				return fail(response.status, {
-					email,
-					message:
-						(payload as { error?: string; message?: string } | null)?.error ??
-						(payload as { error?: string; message?: string } | null)?.message ??
-						'Invalid credentials.'
-				});
+			if (result?.user) {
+				// If successful, just redirect. The cookies should be set by the plugin.
+				throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
 			}
 
-			applyAuthCookies(response.headers, cookies);
-			locals.user = (payload as { user?: unknown } | null)?.user ?? null;
-			locals.session = (payload as { session?: unknown } | null)?.session ?? null;
+			// Should not be reached if successful usually returns strict object or throws?
+			// better-auth throws on error? No, usually returns object if not passing proper generic.
+			// But let's check basic API.
+			// Actually, if it returns { user, session }, it's success.
 
-			throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
 		} catch (error) {
+			if (error instanceof Error && 'status' in error) {
+				// APIError
+				return fail(401, { email, message: (error as any).body?.message || error.message });
+			}
+			if (error instanceof Error) {
+				return fail(500, { email, message: error.message });
+			}
 			return fail(500, { email, message: 'Unable to sign in. Please try again.' });
 		}
 	}
 };
-

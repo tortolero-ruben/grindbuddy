@@ -18,26 +18,32 @@
 	});
 
 	const isAuthRoute = $derived(
-		$page.url.pathname === '/' || $page.url.pathname.startsWith('/login') || $page.url.pathname.startsWith('/register')
+		$page.url.pathname.startsWith('/login') || $page.url.pathname.startsWith('/register')
 	);
+	
+	const isHome = $derived($page.url.pathname === '/');
 </script>
 
 <ModeWatcher defaultMode="light" />
 
 <div
-	class="min-h-screen bg-white dark:bg-slate-950 text-slate-950 dark:text-white transition-colors duration-300"
+	class="min-h-screen bg-background text-foreground transition-colors duration-300 relative font-sans"
 >
-	{#if !isAuthRoute}
-		<DesktopNav user={data.user} />
-		<MobileNav user={data.user} />
-	{/if}
+	<div class="fixed inset-0 bg-noise pointer-events-none z-0"></div>
+	
+	<div class="relative z-10">
+		{#if !isAuthRoute && !isHome}
+			<DesktopNav user={data.user} />
+			<MobileNav user={data.user} />
+		{/if}
 
-	<main class={isAuthRoute ? 'py-12' : 'pt-16 pb-16 md:pb-0'}>
-		{@render children()}
-	</main>
+		<main class={isAuthRoute ? 'py-12' : isHome ? '' : 'pt-16 pb-16 md:pb-0'}>
+			{@render children()}
+		</main>
+	</div>
 </div>
 
-{#if !isAuthRoute}
+{#if !isAuthRoute && !isHome}
 	<ProblemSearchModal open={$isSearchModalOpen} onClose={closeSearchModal} />
 	<LogDetailsModal open={$isLogModalOpen} onClose={closeLogModal} />
 {/if}

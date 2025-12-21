@@ -65,7 +65,13 @@
 					<span class="text-slate-400">Never logged</span>
 				{/if}
 			</div>
-			<div class="flex items-center gap-2" onclick={(e) => e.stopPropagation()} role="group">
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+			<div
+				class="flex items-center gap-2"
+				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => e.stopPropagation()}
+				role="group"
+			>
 				<a
 					href={problem.leetcodeUrl}
 					target="_blank"
@@ -82,10 +88,14 @@
 		</div>
 
 		{#if isExpanded}
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 			<div
 				class="pt-2 border-t border-slate-100 dark:border-slate-800"
 				onclick={(e) => e.stopPropagation()}
+				onkeydown={(e) => e.stopPropagation()}
 				role="region"
+				aria-label="Problem History"
+				tabindex="-1"
 			>
 				<HistoryTimeline problemId={problem.id} />
 			</div>

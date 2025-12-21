@@ -18,7 +18,7 @@ import { get } from 'svelte/store';
 	const logCounts = $derived.by(() => {
 		const counts = new Map<string, number>();
 		get(logs).forEach((log: Log) => {
-			const dateKey = log.timestamp.toISOString().split('T')[0];
+			const dateKey = new Date(log.timestamp).toISOString().split('T')[0];
 			counts.set(dateKey, (counts.get(dateKey) || 0) + 1);
 		});
 		return counts;
@@ -51,4 +51,3 @@ import { get } from 'svelte/store';
 		{/each}
 	</div>
 </div>
-

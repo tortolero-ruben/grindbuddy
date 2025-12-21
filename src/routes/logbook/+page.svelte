@@ -24,7 +24,8 @@
 
 	// Reactive filtered problems
 	let filteredProblems = $derived.by(() => {
-		let filtered = $problemsWithLogs;
+		// Default to only problems that have been attempted (have logs)
+		let filtered = $problemsWithLogs.filter(p => p.logs.length > 0);
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();

@@ -1,19 +1,14 @@
 # GrindBuddy
 
-SvelteKit app with Better Auth (email/password) wired through `@repo/auth`.
+SvelteKit app with Neon Auth (email/password) for authentication.
 
 ## Required environment
 
 Add to the repo-root `.env` (values below are good dev defaults):
 
-- `DATABASE_URL=postgres://auth:auth@localhost:5432/auth`
-- `AUTH_SECRET=changeme-please-32chars` (32+ chars)
-- `AUTH_URL=http://localhost:5173` (use `http://localhost:4173` when running `npm run preview` or docker)
-- Optional tuning:
-  - `AUTH_COOKIE_NAME=ba_session`
-  - `AUTH_COOKIE_DOMAIN=localhost`
-  - `AUTH_SESSION_MAX_AGE=604800`
-- Optional client override: `PUBLIC_AUTH_URL` (defaults to same origin)
+- `DATABASE_URL=postgresql://[user]:[password]@[neon_hostname]/[dbname]?sslmode=require`
+- `NEON_AUTH_BASE_URL=https://ep-xxx.neonauth.c-2.us-east-2.aws.neon.build/dbname/auth`
+- `PUBLIC_NEON_AUTH_URL=https://ep-xxx.neonauth.c-2.us-east-2.aws.neon.build/dbname/auth`
 
 ## Running
 
@@ -36,8 +31,6 @@ pnpm --filter grind-buddy preview
 
 ## Tests
 
-Auth service unit tests live in `packages/auth`:
-
 ```sh
-pnpm --filter @repo/auth test
+pnpm --filter grind-buddy test
 ```

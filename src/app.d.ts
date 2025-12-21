@@ -1,12 +1,23 @@
-import type { Auth } from '@repo/auth';
-
-type SessionResult = Awaited<ReturnType<Auth['api']['getSession']>>;
-
 declare global {
 	namespace App {
 		interface Locals {
-			user: NonNullable<SessionResult>['user'] | null;
-			session: NonNullable<SessionResult>['session'] | null;
+			user: {
+				id: string;
+				email: string;
+				name: string | null;
+				image: string | null;
+				emailVerified: boolean;
+				createdAt: Date;
+				updatedAt: Date;
+			} | null;
+			session: {
+				id: string;
+				expiresAt: Date;
+				token: string;
+				createdAt: Date;
+				updatedAt: Date;
+				userId: string;
+			} | null;
 		}
 	}
 }
