@@ -3,6 +3,8 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import { LayoutDashboard, BarChart2, BookOpen, Plus, User } from 'lucide-svelte';
 	import { openSearchModal } from '$lib/stores/logsStore';
+	import { signOut } from '$lib/auth-client';
+	import { goto } from '$app/navigation';
 
 	type UserType = App.Locals['user'];
 
@@ -13,6 +15,11 @@
 		{ path: '/analytics', label: 'Analytics', icon: BarChart2 },
 		{ path: '/logbook', label: 'Logbook', icon: BookOpen }
 	];
+
+	async function handleLogout() {
+		await signOut();
+		await goto('/login');
+	}
 </script>
 
 <nav class="fixed top-0 left-0 right-0 z-40 h-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
@@ -20,7 +27,7 @@
 		<div class="flex h-16 items-center justify-between">
 			<!-- Logo and nav links -->
 			<div class="flex items-center gap-8">
-				<a href="/dashboard" class="text-xl font-bold text-slate-900 dark:text-slate-50">
+				<a href={user ? '/dashboard' : '/'} class="text-xl font-bold text-slate-900 dark:text-slate-50">
 					GrindBuddy
 				</a>
 				<div class="hidden md:flex items-center gap-6">
@@ -50,9 +57,7 @@
 							{#if user?.name}{user.name.slice(0, 1)}{:else}<User class="h-4 w-4" />{/if}
 						</div>
 						<span class="hidden md:inline">{user.name}</span>
-						<form method="POST" action="/logout">
-							<Button type="submit" variant="ghost" size="sm">Logout</Button>
-						</form>
+						<Button onclick={handleLogout} variant="ghost" size="sm">Logout</Button>
 					</div>
 				</div>
 			{:else}

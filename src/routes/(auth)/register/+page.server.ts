@@ -1,4 +1,4 @@
-import { auth } from '$lib/server/auth';
+import { signUpEmail } from '$lib/server/auth-api';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -22,12 +22,15 @@ export const actions: Actions = {
 		}
 
 		try {
-			await auth.api.signUpEmail({
-				body: { email, password, name }
-			});
-			// If successful (no throw), cookies are set by plugin
+			const result = await signUpEmail({ email, password, name });
 
-			throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
+			if (result?.user) {
+				// If successful, redirect. Cookies are set by the auth proxy.
+				throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
+			}
+
+			return fail(500, { email, name, message: 'Registration failed. Please try again.' });
+
 		} catch (error: any) {
 			// Check for APIError from better-auth
 			// Assuming 422 or similar for user exists

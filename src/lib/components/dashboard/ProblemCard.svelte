@@ -8,15 +8,13 @@
 	import { ExternalLink } from 'lucide-svelte';
 	import type { ProblemWithLogs, Problem } from '$lib/types';
 	import { formatRelativeTime } from '$lib/utils/dateUtils';
-	import { openLogModal } from '$lib/stores/logsStore';
+	import { openDetailsModal } from '$lib/stores/logsStore';
 
 	interface Props {
 		problem: ProblemWithLogs;
 	}
 
 	let { problem }: Props = $props();
-	
-	let isExpanded = $state(false);
 </script>
 
 <Card
@@ -26,10 +24,10 @@
 >
 	<div
 		class="p-4 flex flex-col gap-3"
-		onclick={() => (isExpanded = !isExpanded)}
+		onclick={() => openDetailsModal(problem)}
 		role="button"
 		tabindex="0"
-		onkeydown={(e) => e.key === 'Enter' && (isExpanded = !isExpanded)}
+		onkeydown={(e) => e.key === 'Enter' && openDetailsModal(problem)}
 	>
 		<!-- Header: Problem number + title -->
 		<div class="flex justify-between items-start">
@@ -37,11 +35,9 @@
 				#{problem.number}
 				{problem.title}
 			</h3>
-			{#if isExpanded}
-				<span class="text-xs text-slate-400">Hide History</span>
-			{:else}
-				<span class="text-xs text-slate-400">Show History</span>
-			{/if}
+			<div class="flex items-center gap-2">
+				<span class="text-xs text-slate-400">View Details</span>
+			</div>
 		</div>
 
 		<!-- Badges: Difficulty and Patterns -->
@@ -86,19 +82,5 @@
 				</Button>
 			</div>
 		</div>
-
-		{#if isExpanded}
-			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-			<div
-				class="pt-2 border-t border-slate-100 dark:border-slate-800"
-				onclick={(e) => e.stopPropagation()}
-				onkeydown={(e) => e.stopPropagation()}
-				role="region"
-				aria-label="Problem History"
-				tabindex="-1"
-			>
-				<HistoryTimeline problemId={problem.id} />
-			</div>
-		{/if}
 	</div>
 </Card>

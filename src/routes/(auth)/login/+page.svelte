@@ -14,6 +14,11 @@
 </script>
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
+	<div class="mb-8">
+		<a href="/" class="font-display text-4xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
+			Grind<span class="text-primary">Buddy</span>
+		</a>
+	</div>
 	<div class="w-full max-w-sm md:max-w-3xl">
 		<Card class="border border-border">
 			<CardHeader class="space-y-1">

@@ -2,6 +2,7 @@
 	import { ArrowRight, Brain, Zap, TrendingUp } from 'lucide-svelte';
 	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
+	import RadarChart from '$lib/components/common/RadarChart.svelte';
 </script>
 
 <div class="relative overflow-hidden">
@@ -14,9 +15,9 @@
 	<nav
 		class="container mx-auto flex items-center justify-between px-6 py-6"
 	>
-		<div class="font-display text-2xl font-bold tracking-tighter">
+		<a href="/" class="font-display text-2xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
 			Grind<span class="text-primary">Buddy</span>
-		</div>
+		</a>
 		<div class="flex items-center gap-4">
 			<ModeToggle />
 			<a
@@ -119,10 +120,88 @@
 		</div>
 	</section>
 
+	<!-- Interview Intelligence Section -->
+	<section class="container mx-auto px-6 py-24 lg:py-32">
+		<div class="grid items-center gap-16 lg:grid-cols-2">
+			<div class="space-y-8">
+				<div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary backdrop-blur-sm">
+					<TrendingUp class="h-4 w-4" />
+					Target Specific Companies
+				</div>
+				<h2 class="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">
+					Interview <span class="text-gradient-primary">Intelligence</span>
+				</h2>
+				<p class="text-lg text-muted-foreground">
+					Our data-driven insights compare your current coding patterns against the actual problem distributions of top tech companies. Know exactly where your gaps are before you walk into the room.
+				</p>
+				<ul class="space-y-4">
+					{#each [
+						{ icon: Brain, text: "Compare against 400+ tech companies" },
+						{ icon: Zap, text: "Real-time skill gap analysis" },
+						{ icon: TrendingUp, text: "Data-backed pattern frequency" }
+					] as feature}
+						<li class="flex items-center gap-3">
+							<div class="rounded-full bg-primary/10 p-1 text-primary">
+								<feature.icon class="h-5 w-5" />
+							</div>
+							<span class="font-medium">{feature.text}</span>
+						</li>
+					{/each}
+				</ul>
+				<div class="pt-4">
+					<a
+						href="/register"
+						class="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-bold text-primary-foreground transition-all hover:scale-105"
+					>
+						Analyze My Skills
+						<ArrowRight class="h-5 w-5" />
+					</a>
+				</div>
+			</div>
+
+			<div class="relative group">
+				<!-- Mock Radar Chart Design -->
+				<div class="relative aspect-square max-w-[500px] mx-auto rounded-3xl border border-white/10 bg-black/20 p-8 backdrop-blur-xl transition-all hover:border-primary/30">
+					<div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 to-transparent blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+					
+					<div class="flex h-full w-full items-center justify-center">
+						<div class="relative h-full w-full">
+							<RadarChart 
+								labels={['Arrays', 'Two Pointers', 'Sliding Window', 'Stack', 'Binary Search', 'Linked List', 'Trees', 'Backtracking', 'Graphs', 'DP']}
+								primaryData={{
+									label: 'You',
+									data: [65, 45, 75, 60, 55, 40, 70, 30, 80, 50],
+									color: 'hsl(217, 91%, 60%)'
+								}}
+								comparisonData={{
+									label: 'Google',
+									data: [85, 70, 60, 80, 75, 65, 90, 50, 60, 85],
+									color: '#4285F4'
+								}}
+							/>
+						</div>
+					</div>
+
+					<!-- Floating Badges -->
+					<div class="absolute -left-4 top-1/4 animate-bounce-slow">
+						<div class="rounded-xl border border-white/10 bg-black/60 px-4 py-2 text-xs font-bold shadow-2xl backdrop-blur-md">
+							<span class="text-blue-400">Google</span> Match: 78%
+						</div>
+					</div>
+					<div class="absolute -right-4 bottom-1/4 animate-float">
+						<div class="rounded-xl border border-white/10 bg-black/60 px-4 py-2 text-xs font-bold shadow-2xl backdrop-blur-md">
+							<span class="text-primary">Amazon</span> Target
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<!-- How It Works -->
 	<section
 		id="how-it-works"
-		class="relative py-32"
+		class="relative py-32 bg-background/50"
 	>
 		<!-- Background Glow -->
 		<div class="absolute right-0 top-1/2 -z-10 h-[600px] w-[600px] -translate-y-1/2 translate-x-1/2 rounded-full bg-primary/10 blur-[100px] opacity-20"></div>

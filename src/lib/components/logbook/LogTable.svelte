@@ -5,6 +5,12 @@
 	import HistoryTimeline from './HistoryTimeline.svelte';
 	import { formatRelativeTime } from '$lib/utils/dateUtils';
 	import type { ProblemWithLogs } from '$lib/types';
+	import { ExternalLink, Plus } from 'lucide-svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import { openLogModal } from '$lib/stores/logsStore';
+	import ProblemDetailsModal from '$lib/components/modals/ProblemDetailsModal.svelte';
+
+	import { openDetailsModal } from '$lib/stores/logsStore';
 
 	interface Props {
 		problems: ProblemWithLogs[];
@@ -12,15 +18,8 @@
 
 	let { problems }: Props = $props();
 
-	let expandedRows = $state<Set<string>>(new Set());
-
-	function toggleRow(problemId: string) {
-		if (expandedRows.has(problemId)) {
-			expandedRows.delete(problemId);
-		} else {
-			expandedRows.add(problemId);
-		}
-		expandedRows = expandedRows; // Trigger reactivity
+	function openDetails(problem: ProblemWithLogs) {
+		openDetailsModal(problem);
 	}
 </script>
 
@@ -35,10 +34,10 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each problems as problem}
+			{#each problems as problem (problem.id)}
 				<tr
-					class="border-b border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900"
-					onclick={() => toggleRow(problem.id)}
+					class="border-b border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+					onclick={() => openDetails(problem)}
 				>
 					<td class="px-4 py-3">
 						<div class="font-mono font-semibold">#{problem.number} {problem.title}</div>
@@ -69,15 +68,13 @@
 						{/if}
 					</td>
 				</tr>
-				{#if expandedRows.has(problem.id)}
-					<tr>
-						<td colspan="4" class="px-4 py-4 bg-slate-50 dark:bg-slate-900">
-							<HistoryTimeline problemId={problem.id} />
-						</td>
-					</tr>
-				{/if}
 			{/each}
 		</tbody>
 	</table>
 </div>
 
+<ProblemDetailsModal
+	open={isModalOpen}
+	onClose={() => (isModalOpen = false)}
+	problem={selectedProblemForDetails}
+/>

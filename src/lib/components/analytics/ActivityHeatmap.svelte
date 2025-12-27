@@ -37,13 +37,13 @@ import { get } from 'svelte/store';
 	}
 </script>
 
-<div class="overflow-x-auto">
-	<div class="inline-flex gap-1 p-4">
+<div class="w-full">
+	<div class="grid grid-cols-7 sm:grid-cols-14 md:grid-cols-21 lg:grid-cols-35 gap-1">
 		{#each days as day}
 			{@const dateKey = getDateKey(day)}
 			{@const count = logCounts.get(dateKey) || 0}
 			<div
-				class="h-3 w-3 rounded {getIntensity(count)}"
+				class="h-3 w-3 rounded-sm {getIntensity(count)} transition-colors"
 				title="{day.toLocaleDateString()}: {count} {count === 1 ? 'problem' : 'problems'} solved"
 				role="button"
 				tabindex="0"
@@ -51,3 +51,19 @@ import { get } from 'svelte/store';
 		{/each}
 	</div>
 </div>
+
+<style>
+	.custom-scrollbar::-webkit-scrollbar {
+		height: 6px;
+	}
+	.custom-scrollbar::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.custom-scrollbar::-webkit-scrollbar-thumb {
+		background: #e2e8f0;
+		border-radius: 10px;
+	}
+	:global(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+		background: #1e293b;
+	}
+</style>

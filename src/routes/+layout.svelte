@@ -6,7 +6,8 @@
 	import MobileNav from '$lib/components/nav/MobileNav.svelte';
 	import ProblemSearchModal from '$lib/components/modals/ProblemSearchModal.svelte';
 	import LogDetailsModal from '$lib/components/modals/LogDetailsModal.svelte';
-	import { isSearchModalOpen, isLogModalOpen, closeSearchModal, closeLogModal, initializeStores } from '$lib/stores/logsStore';
+	import { isSearchModalOpen, isLogModalOpen, isDetailsModalOpen, selectedDetailsProblem, closeSearchModal, closeLogModal, closeDetailsModal, initializeStores } from '$lib/stores/logsStore';
+	import ProblemDetailsModal from '$lib/components/modals/ProblemDetailsModal.svelte';
 	import { onMount } from 'svelte';
 
 	let { data, children } = $props();
@@ -46,4 +47,5 @@
 {#if !isAuthRoute && !isHome}
 	<ProblemSearchModal open={$isSearchModalOpen} onClose={closeSearchModal} />
 	<LogDetailsModal open={$isLogModalOpen} onClose={closeLogModal} />
+	<ProblemDetailsModal open={$isDetailsModalOpen} onClose={closeDetailsModal} problem={$selectedDetailsProblem} />
 {/if}

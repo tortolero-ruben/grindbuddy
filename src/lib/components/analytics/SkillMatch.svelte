@@ -1,19 +1,63 @@
 <script lang="ts">
 	import * as Select from '$lib/components/ui/select';
 	import { Label } from '$lib/components/ui/label';
-	import { COMPANY_PROFILES } from '$lib/data/companies';
-	import type { CompanyProfile } from '$lib/data/companies';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';
 	import type { Pattern, ProblemWithLogs } from '$lib/types';
 	import { problemsWithLogs } from '$lib/stores/logsStore';
 	import { get } from 'svelte/store';
+	import { RefreshCw } from 'lucide-svelte';
+	import { onMount } from 'svelte';
 
+	interface DynamicCompany {
+		name: string;
+		slug: string;
+		color: string;
+		patterns: Record<string, number>;
+	}
+
+	let companies = $state<any[]>([]);
 	let selectedCompanySlug = $state('google');
+	let isRefreshing = $state(false);
+	let currentCompanyData = $state<DynamicCompany | null>(null);
 
-	const selectedCompany = $derived(
-		(COMPANY_PROFILES.find((c) => c.slug === selectedCompanySlug) ||
-			COMPANY_PROFILES[0]) as CompanyProfile
-	);
+	async function loadCompanies() {
+		const res = await fetch('/api/companies');
+		companies = await res.json();
+	}
+
+	async function loadCompanyDetails(slug: string) {
+		isRefreshing = true;
+		try {
+			const res = await fetch(`/api/companies/${slug}`);
+			currentCompanyData = await res.json();
+		} finally {
+			isRefreshing = false;
+		}
+	}
+
+	onMount(() => {
+		loadCompanies();
+		loadCompanyDetails(selectedCompanySlug);
+	});
+
+	$effect(() => {
+		if (selectedCompanySlug) {
+			loadCompanyDetails(selectedCompanySlug);
+		}
+	});
+
+	const CORE_PATTERNS: Pattern[] = [
+		'Arrays & Hashing',
+		'Two Pointers',
+		'Sliding Window',
+		'Stack',
+		'Binary Search',
+		'Linked List',
+		'Trees',
+		'Backtracking',
+		'Graphs',
+		'1-D Dynamic Programming'
+	];
 
 	// Calculate user mastery per pattern
 	const userMastery = $derived.by(() => {
@@ -42,10 +86,10 @@
 	});
 
 	const chartData = $derived.by(() => {
-		// Force type assertion for patterns keys
-		const patterns = selectedCompany.patterns as Partial<Record<Pattern, number>>;
-		const companyPatterns = Object.keys(patterns) as Pattern[];
-		const labels = companyPatterns;
+		if (!currentCompanyData) return { labels: [], primary: { label: 'You', data: [], color: '' }, comparison: { label: '', data: [], color: '' } };
+
+		const patterns = currentCompanyData.patterns;
+		const labels = CORE_PATTERNS;
 
 		const userDataPoints = labels.map((pattern) => userMastery[pattern] || 0);
 		const companyDataPoints = labels.map((pattern) => patterns[pattern] || 0);
@@ -55,12 +99,12 @@
 			primary: {
 				label: 'You',
 				data: userDataPoints,
-				color: 'rgb(59, 130, 246)' // blue-500
+				color: 'hsl(217, 91%, 60%)' // Soft blue
 			},
 			comparison: {
-				label: selectedCompany.name,
+				label: currentCompanyData.name,
 				data: companyDataPoints,
-				color: selectedCompany.color
+				color: currentCompanyData.color || '#6366f1'
 			}
 		};
 	});
@@ -74,15 +118,25 @@
 	<div class="mb-6 flex items-center gap-4">
 		<div class="grid w-full max-w-sm items-center gap-1.5">
 			<Label for="company-select">Target Company</Label>
-			<select
-				id="company-select"
-				bind:value={selectedCompanySlug}
-				class="flex h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-			>
-				{#each COMPANY_PROFILES as company}
-					<option value={company.slug}>{company.name}</option>
-				{/each}
-			</select>
+			<div class="flex items-center gap-2">
+				<select
+					id="company-select"
+					bind:value={selectedCompanySlug}
+					class="flex h-10 w-[240px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+				>
+					{#each companies as company}
+						<option value={company.slug}>{company.name}</option>
+					{/each}
+				</select>
+				<button
+					class="p-2 rounded-md border border-input hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+					onclick={() => loadCompanyDetails(selectedCompanySlug)}
+					disabled={isRefreshing}
+					aria-label="Refresh analysis"
+				>
+					<RefreshCw class="h-4 w-4 {isRefreshing ? 'animate-spin' : ''}" />
+				</button>
+			</div>
 		</div>
 	</div>
 

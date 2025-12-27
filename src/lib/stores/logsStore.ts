@@ -2,14 +2,16 @@
 // Direct runes usage for optimal performance and DX
 
 import { writable, derived } from 'svelte/store';
-import type { Log, Problem } from '$lib/types/index';
+import type { Log, Problem, ProblemWithLogs } from '$lib/types/index';
 
 // Core stores
 export const logs = writable<Log[]>([]);
 export const problems = writable<Problem[]>([]);
 export const isSearchModalOpen = writable(false);
 export const isLogModalOpen = writable(false);
+export const isDetailsModalOpen = writable(false);
 export const selectedProblem = writable<Problem | null>(null);
+export const selectedDetailsProblem = writable<ProblemWithLogs | null>(null);
 
 // Initialize stores with data from server
 export function initializeStores(data: { problems: Problem[]; logs: Log[] }) {
@@ -71,4 +73,14 @@ export function openLogModal(problem: Problem) {
 export function closeLogModal() {
 	isLogModalOpen.set(false);
 	selectedProblem.set(null);
+}
+
+export function openDetailsModal(problem: ProblemWithLogs) {
+	selectedDetailsProblem.set(problem);
+	isDetailsModalOpen.set(true);
+}
+
+export function closeDetailsModal() {
+	isDetailsModalOpen.set(false);
+	selectedDetailsProblem.set(null);
 }

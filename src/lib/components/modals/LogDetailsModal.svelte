@@ -50,7 +50,7 @@
 		{ value: 'O(n!)', label: 'O(n!)' }
 	];
 
-	const canSave = $derived(outcome !== '' && notes.trim() !== '');
+	const canSave = $derived(outcome !== '');
 
 	$effect(() => {
 		if (open && $selectedProblem) {
@@ -159,7 +159,7 @@
 
 				<!-- Notes Section -->
 				<div>
-					<label for="notes" class="mb-2 block text-sm font-medium">Notes (Required)</label>
+					<label for="notes" class="mb-2 block text-sm font-medium">Notes (Optional)</label>
 					<Textarea
 						name="notes"
 						id="notes"

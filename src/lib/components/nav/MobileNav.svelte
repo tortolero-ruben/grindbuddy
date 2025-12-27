@@ -2,15 +2,22 @@
 	import { page } from '$app/stores';
 	import { LayoutDashboard, BarChart2, BookOpen, Plus, LogOut } from 'lucide-svelte';
 	import { openSearchModal } from '$lib/stores/logsStore';
+	import { signOut } from '$lib/auth-client';
+	import { goto } from '$app/navigation';
 
 	type UserType = App.Locals['user'];
 	let { user }: { user: UserType | null } = $props();
 
-	const navItems = [
-		{ path: '/dashboard', label: 'Home', icon: LayoutDashboard },
+	const navItems = $derived([
+		{ path: user ? '/dashboard' : '/', label: 'Home', icon: LayoutDashboard },
 		{ path: '/analytics', label: 'Charts', icon: BarChart2 },
 		{ path: '/logbook', label: 'List', icon: BookOpen }
-	];
+	]);
+
+	async function handleLogout() {
+		await signOut();
+		await goto('/login');
+	}
 </script>
 
 <nav
@@ -30,16 +37,13 @@
 			</a>
 		{/each}
 		{#if user}
-			<form
-				method="POST"
-				action="/logout"
+			<button
+				onclick={handleLogout}
 				class="flex flex-col items-center justify-center px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300"
 			>
-				<button class="flex flex-col items-center justify-center gap-1">
-					<LogOut class="h-6 w-6" />
-					Logout
-				</button>
-			</form>
+				<LogOut class="h-6 w-6" />
+				Logout
+			</button>
 		{/if}
 	</div>
 </nav>

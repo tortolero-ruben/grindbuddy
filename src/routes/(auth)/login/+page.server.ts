@@ -1,4 +1,4 @@
-import { auth } from '$lib/server/auth';
+import { signInEmail } from '$lib/server/auth-api';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -21,20 +21,15 @@ export const actions: Actions = {
 		}
 
 		try {
-			const result = await auth.api.signInEmail({
-				body: { email, password }
-				// sveltekitCookies plugin handles cookies via getRequestEvent
-			});
+			const result = await signInEmail({ email, password });
 
 			if (result?.user) {
-				// If successful, just redirect. The cookies should be set by the plugin.
+				// If successful, redirect. Cookies are set by the auth proxy.
 				throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
 			}
 
-			// Should not be reached if successful usually returns strict object or throws?
-			// better-auth throws on error? No, usually returns object if not passing proper generic.
-			// But let's check basic API.
-			// Actually, if it returns { user, session }, it's success.
+			// If we get here, sign in failed
+			return fail(401, { email, message: 'Invalid email or password.' });
 
 		} catch (error) {
 			if (error instanceof Error && 'status' in error) {

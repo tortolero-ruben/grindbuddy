@@ -20,7 +20,7 @@ export const actions: Actions = {
         const spaceComplexity = data.get('spaceComplexity') as string;
         const notes = data.get('notes') as string;
 
-        if (!problemId || !status || !notes) {
+        if (!problemId || !status) {
             return fail(400, { message: 'Missing required fields' });
         }
 
@@ -82,7 +82,7 @@ export const actions: Actions = {
         const spaceComplexity = data.get('spaceComplexity') as string;
         const notes = data.get('notes') as string;
 
-        if (!logId || !status || !notes) {
+        if (!logId || !status) {
             return fail(400, { message: 'Missing required fields' });
         }
 

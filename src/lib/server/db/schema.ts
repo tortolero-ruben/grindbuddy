@@ -106,6 +106,21 @@ export const problems = pgTable('problems', {
     leetcodeUrl: text('leetcode_url').notNull()
 });
 
+export const companies = pgTable('companies', {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull().unique(),
+    color: text('color')
+});
+
+export const companyProblems = pgTable('company_problems', {
+    id: serial('id').primaryKey(),
+    companyId: text('company_id').references(() => companies.id).notNull(),
+    problemId: text('problem_id').references(() => problems.id).notNull(),
+    frequency: integer('frequency').default(0),
+    timeframe: text('timeframe').notNull() // '30 days', '3 months', '6 months', 'all'
+});
+
 export const logs = pgTable('logs', {
     id: text('id').primaryKey(),
     userId: text('user_id').references(() => user.id).notNull(),
@@ -129,5 +144,20 @@ export const logsRelations = relations(logs, ({ one }) => ({
     user: one(user, {
         fields: [logs.userId],
         references: [user.id]
+    })
+}));
+
+export const companiesRelations = relations(companies, ({ many }) => ({
+    companyProblems: many(companyProblems)
+}));
+
+export const companyProblemsRelations = relations(companyProblems, ({ one }) => ({
+    company: one(companies, {
+        fields: [companyProblems.companyId],
+        references: [companies.id]
+    }),
+    problem: one(problems, {
+        fields: [companyProblems.problemId],
+        references: [problems.id]
     })
 }));

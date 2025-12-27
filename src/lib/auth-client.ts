@@ -1,5 +1,57 @@
-import { createAuthClient } from "better-auth/svelte";
+import { browser } from '$app/environment';
+import { createAuthClient as createNeonAuthClient, type VanillaBetterAuthClient } from '@neondatabase/auth';
 
-export const authClient = createAuthClient({
-	baseURL: "http://localhost:5173" // Adjust if needed
-});
+// Use our API proxy route instead of direct Neon Auth URL
+// This avoids CORS issues and allows us to handle cookies properly
+const getApiAuthUrl = () => {
+	if (!browser) return '';
+	return `${window.location.origin}/api/auth`;
+};
+
+// Only create the client in the browser to avoid SSR issues
+let authClient: VanillaBetterAuthClient | null = null;
+
+export function getAuthClient(): VanillaBetterAuthClient {
+	if (!browser) {
+		throw new Error('Auth client can only be used in the browser');
+	}
+	if (!authClient) {
+		const apiAuthUrl = getApiAuthUrl();
+		if (!apiAuthUrl) {
+			throw new Error('Cannot determine API auth URL');
+		}
+		authClient = createNeonAuthClient(apiAuthUrl);
+	}
+	return authClient;
+}
+
+// Convenience exports for auth operations
+export const signIn = (...args: Parameters<VanillaBetterAuthClient['signIn']>) => {
+	return getAuthClient().signIn(...args);
+};
+
+export const signUp = (...args: Parameters<VanillaBetterAuthClient['signUp']>) => {
+	return getAuthClient().signUp(...args);
+};
+
+export const signOut = (...args: Parameters<VanillaBetterAuthClient['signOut']>) => {
+	return getAuthClient().signOut(...args);
+};
+
+// Get session synchronously (for compatibility)
+export const getSession = () => {
+	if (!browser) return null;
+	try {
+		return getAuthClient().getSession?.() || null;
+	} catch {
+		return null;
+	}
+};
+
+// Reset the cached client (for testing only)
+export function resetAuthClient() {
+	authClient = null;
+}
+
+// Legacy export for compatibility
+export { getAuthClient as authClient };
