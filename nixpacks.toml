@@ -1,0 +1,23 @@
+[phases.setup]
+nixPkgs = ["nodejs-20_x", "pnpm"]
+
+[phases.build]
+cmds = [
+  "pnpm install --frozen-lockfile",
+  "pnpm --filter=grind-buddy build"
+]
+
+[phases.start]
+cmds = ["node build/index.js"]
+
+[start]
+cmd = "node build/index.js"
+
+[variables]
+NODE_ENV = "production"
+PORT = "5173"
+
+[env]
+PORT = "5173"
+HOST = "0.0.0.0"
+NODE_ENV = "production"
