@@ -1,5 +1,5 @@
 # Build stage - use shared base
-FROM monorepo-base:latest AS builder
+FROM ghcr.io/ruby/monorepo/monorepo-base:latest AS builder
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN pnpm --filter=grind-buddy build
 
 # Production stage - use shared production base
-FROM monorepo-base:prod AS runner
+FROM ghcr.io/ruby/monorepo/monorepo-base:prod AS runner
 
 WORKDIR /app
 
