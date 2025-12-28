@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
@@ -16,6 +17,15 @@ export default defineConfig(({ mode }) => {
 		preview: {
 			host: true,
 			port: Number(process.env.PORT) || 5173
+		},
+		test: {
+			environment: 'jsdom',
+			setupFiles: ['./src/test-setup.ts'],
+			coverage: {
+				provider: 'v8',
+				reporter: ['text', 'json', 'html'],
+				exclude: ['node_modules/', 'src/test-setup.ts']
+			}
 		}
 	};
 });
