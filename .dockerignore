@@ -1,15 +1,12 @@
-node_modules
-npm-debug.log
-.DS_Store
-.env
+# Exclude other apps
+!apps/grind-buddy
+apps/fee-fight
+
+# Only include required packages
+!packages/db
+packages/auth
+packages/tsconfig
+
+# Development
 .env.local
 .env.*.local
-.svelte-kit
-build
-dist
-.git
-.gitignore
-.pnpm-store
-.vscode
-.idea
-*.log
