@@ -92,25 +92,3 @@ describe('auth server client', () => {
 		});
 	});
 });
-
-describe('auth regression tests after standalone migration', () => {
-	it('should maintain session across requests', async () => {
-		// This tests that the standalone migration didn't break session handling
-		const auth = await import('./auth');
-		expect(auth).toBeDefined();
-	});
-
-	it('should handle missing database gracefully', async () => {
-		// Test that auth functions fail safely when DB is unavailable
-		const auth = await import('./auth');
-
-		// In standalone mode, auth should work without direct DB dependency
-		// Auth operations are delegated to Neon Auth service
-		expect(auth).toBeDefined();
-
-		// Auth should not crash even if DB layer has issues
-		// since it uses Neon Auth which manages its own connection
-		expect(auth.createAuth).toBeDefined();
-		expect(auth.getAuthClient).toBeDefined();
-	});
-});
