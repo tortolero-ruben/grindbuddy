@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals, url }) => {
+	default: async ({ request, locals, url, fetch }) => {
 		const form = await request.formData();
 		const name = (form.get('name')?.toString() ?? '').trim();
 		const email = (form.get('email')?.toString() ?? '').trim().toLowerCase();
@@ -22,13 +22,18 @@ export const actions: Actions = {
 		}
 
 		try {
-			const result = await signUpEmail({ email, password, name });
+			console.log('[Register Action] Calling signUpEmail with:', { email, name });
+			const result = await signUpEmail({ email, password, name }, fetch);
+
+			console.log('[Register Action] Result:', result ? 'Got result' : 'Result is null');
 
 			if (result?.user) {
 				// If successful, redirect. Cookies are set by the auth proxy.
+				console.log('[Register Action] Success! Redirecting...');
 				throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
 			}
 
+			console.log('[Register Action] Failed - no user in result');
 			return fail(500, { email, name, message: 'Registration failed. Please try again.' });
 
 		} catch (error: any) {

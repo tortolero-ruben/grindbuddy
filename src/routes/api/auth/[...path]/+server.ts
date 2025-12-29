@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
-import { env } from '$env/dynamic/private';
+import { env as privateEnv } from '$env/dynamic/private';
+import { env as publicEnv } from '$env/dynamic/public';
 
 const NEON_AUTH_COOKIE_PREFIX = 'neon_auth';
 
@@ -38,7 +39,7 @@ function getOrigin(request: Request): string {
  * Handle auth request by proxying to Neon Auth service
  */
 async function handleAuthRequest(request: Request, path: string): Promise<Response> {
-	const baseUrl = env.NEON_AUTH_BASE_URL;
+	const baseUrl = privateEnv.NEON_AUTH_BASE_URL || publicEnv.PUBLIC_NEON_AUTH_URL;
 
 	if (!baseUrl) {
 		console.error('NEON_AUTH_BASE_URL is not set');
@@ -69,6 +70,16 @@ async function handleAuthRequest(request: Request, path: string): Promise<Respon
 	const upstreamUrl = new URL(`${baseUrl}/${path}`);
 	upstreamUrl.search = originalUrl.search;
 
+	// Debug logging
+	console.log('[Auth Proxy Debug] Request details:', {
+		method: request.method,
+		path,
+		baseUrl,
+		upstreamUrl: upstreamUrl.toString(),
+		headers: Object.fromEntries(headers.entries()),
+		body: body ? `${body.substring(0, 200)}...` : undefined
+	});
+
 	try {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -84,6 +95,15 @@ async function handleAuthRequest(request: Request, path: string): Promise<Respon
 
 		// Create response with same status and body
 		const responseBody = await upstreamResponse.text();
+
+		// Debug logging for response
+		console.log('[Auth Proxy Debug] Response from Neon Auth:', {
+			status: upstreamResponse.status,
+			statusText: upstreamResponse.statusText,
+			responseBody: responseBody.substring(0, 500),
+			contentType: upstreamResponse.headers.get('content-type'),
+			setCookie: upstreamResponse.headers.getSetCookie()
+		});
 		const responseHeaders = new Headers();
 
 		// Copy content-type

@@ -3,7 +3,7 @@ import type { Handle } from "@sveltejs/kit";
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Fetch current session via auth proxy
-	const session = await getSession(event.request.headers);
+	const session = await getSession(event.request.headers, event.fetch);
 
 	// Make session and user available on server
 	if (session) {

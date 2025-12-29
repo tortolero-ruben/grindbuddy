@@ -6,9 +6,12 @@ const API_BASE = '/api/auth';
  * Get the current session from cookies
  * Calls /api/auth/get-session endpoint
  */
-export async function getSession(headers: Headers): Promise<{ user: any; session: any } | null> {
+export async function getSession(
+	headers: Headers,
+	fetchFn: typeof fetch = fetch
+): Promise<{ user: any; session: any } | null> {
 	try {
-		const response = await fetch(`${API_BASE}/get-session`, {
+		const response = await fetchFn(`${API_BASE}/get-session`, {
 			headers: {
 				cookie: headers.get('cookie') || ''
 			}
@@ -29,12 +32,15 @@ export async function getSession(headers: Headers): Promise<{ user: any; session
  * Sign in with email and password
  * Calls /api/auth/sign-in/email endpoint
  */
-export async function signInEmail(credentials: {
-	email: string;
-	password: string;
-}): Promise<{ user: any; session: any } | null> {
+export async function signInEmail(
+	credentials: {
+		email: string;
+		password: string;
+	},
+	fetchFn: typeof fetch = fetch
+): Promise<{ user: any; session: any } | null> {
 	try {
-		const response = await fetch(`${API_BASE}/sign-in/email`, {
+		const response = await fetchFn(`${API_BASE}/sign-in/email`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json'
@@ -56,13 +62,17 @@ export async function signInEmail(credentials: {
  * Sign up with email and password
  * Calls /api/auth/sign-up/email endpoint
  */
-export async function signUpEmail(credentials: {
-	email: string;
-	password: string;
-	name?: string;
-}): Promise<{ user: any; session: any } | null> {
+export async function signUpEmail(
+	credentials: {
+		email: string;
+		password: string;
+		name?: string;
+	},
+	fetchFn: typeof fetch = fetch
+): Promise<{ user: any; session: any } | null> {
 	try {
-		const response = await fetch(`${API_BASE}/sign-up/email`, {
+		console.log('[auth-api] Calling sign-up with:', { email: credentials.email, name: credentials.name });
+		const response = await fetchFn(`${API_BASE}/sign-up/email`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json'
@@ -70,12 +80,20 @@ export async function signUpEmail(credentials: {
 			body: JSON.stringify(credentials)
 		});
 
+		console.log('[auth-api] Response status:', response.status, response.statusText);
+		console.log('[auth-api] Response ok:', response.ok);
+
 		if (!response.ok) {
+			const body = await response.text();
+			console.log('[auth-api] Non-ok response body:', body);
 			return null;
 		}
 
-		return await response.json();
-	} catch {
+		const data = await response.json();
+		console.log('[auth-api] Success! Got user:', data.user?.email);
+		return data;
+	} catch (error) {
+		console.error('[auth-api] Error:', error);
 		return null;
 	}
 }
@@ -84,9 +102,12 @@ export async function signUpEmail(credentials: {
  * Sign out current user
  * Calls /api/auth/sign-out endpoint
  */
-export async function signOut(headers: Headers): Promise<void> {
+export async function signOut(
+	headers: Headers,
+	fetchFn: typeof fetch = fetch
+): Promise<void> {
 	try {
-		await fetch(`${API_BASE}/sign-out`, {
+		await fetchFn(`${API_BASE}/sign-out`, {
 			method: 'POST',
 			headers: {
 				cookie: headers.get('cookie') || ''

@@ -7,8 +7,8 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals }) => {
-		await signOut(request.headers);
+	default: async ({ request, locals, fetch }) => {
+		await signOut(request.headers, fetch);
 
 		locals.user = null;
 		locals.session = null;

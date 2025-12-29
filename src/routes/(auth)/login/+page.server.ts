@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals, url }) => {
+	default: async ({ request, locals, url, fetch }) => {
 		const form = await request.formData();
 		const email = String(form.get('email') ?? '').trim().toLowerCase();
 		const password = String(form.get('password') ?? '');
@@ -21,7 +21,7 @@ export const actions: Actions = {
 		}
 
 		try {
-			const result = await signInEmail({ email, password });
+			const result = await signInEmail({ email, password }, fetch);
 
 			if (result?.user) {
 				// If successful, redirect. Cookies are set by the auth proxy.
