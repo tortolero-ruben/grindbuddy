@@ -5,7 +5,7 @@
 	import PatternBadge from '$lib/components/ui/PatternBadge.svelte';
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
 	import HistoryTimeline from '$lib/components/logbook/HistoryTimeline.svelte';
-	import { ExternalLink } from 'lucide-svelte';
+	import { ExternalLink } from '@lucide/svelte';
 	import type { ProblemWithLogs, Problem } from '$lib/types';
 	import { openDetailsModal } from '$lib/stores/logsStore';
 
@@ -74,7 +74,7 @@
 		<!-- Badges: Difficulty and Patterns -->
 		<div class="flex flex-wrap items-center gap-2">
 			<DifficultyBadge difficulty={problem.difficulty} />
-			{#each problem.patterns as pattern}
+			{#each problem.patterns as pattern (pattern)}
 				<PatternBadge {pattern} />
 			{/each}
 		</div>

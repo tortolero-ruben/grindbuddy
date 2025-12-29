@@ -20,7 +20,7 @@
 		<ZeroState />
 	{:else}
 		<div class="flex flex-col gap-4">
-			{#each $reviewQueue as problem}
+			{#each $reviewQueue as problem (problem.id)}
 				<ProblemCard {problem} />
 			{/each}
 		</div>

@@ -9,13 +9,14 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Button } from '$lib/components/ui/button';
+	import { resolve } from '$app/paths';
 
 	let { form } = $props();
 </script>
 
 <div class="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
 	<div class="mb-8">
-		<a href="/" class="font-display text-4xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
+		<a href={resolve('/')} class="font-display text-4xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
 			Grind<span class="text-primary">Buddy</span>
 		</a>
 	</div>
@@ -56,7 +57,7 @@
 
 				<p class="text-center text-sm text-muted-foreground">
 					Don't have an account?
-					<a href="/register" class="font-medium text-primary hover:underline">
+					<a href={resolve('/register')} class="font-medium text-primary hover:underline">
 						Create one
 					</a>
 				</p>

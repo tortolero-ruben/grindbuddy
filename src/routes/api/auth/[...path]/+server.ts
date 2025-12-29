@@ -2,7 +2,7 @@ import type { RequestHandler } from './$types';
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 
-const NEON_AUTH_COOKIE_PREFIX = 'neon_auth';
+const NEON_AUTH_COOKIE_PREFIX = 'neon-auth';
 
 // Headers to proxy to the upstream Neon Auth service
 const PROXY_HEADERS = ['user-agent', 'authorization', 'referer', 'content-type'];
@@ -14,14 +14,33 @@ function extractNeonAuthCookies(request: Request): string {
 	const cookieHeader = request.headers.get('cookie');
 	if (!cookieHeader) return '';
 
-	const cookies: string[] = [];
+	const isLocalhost = new URL(request.url).hostname === 'localhost';
+	const cookies = new Map<string, string>();
+
 	for (const cookie of cookieHeader.split(';')) {
-		const [name] = cookie.trim().split('=');
-		if (name?.startsWith(NEON_AUTH_COOKIE_PREFIX)) {
-			cookies.push(cookie.trim());
+		const parts = cookie.trim().split('=');
+		let name = parts[0];
+		const value = parts.slice(1).join('=');
+
+		// Match both prefixed and non-prefixed cookies (e.g. __Secure-neon-auth and neon-auth)
+		if (name?.includes(NEON_AUTH_COOKIE_PREFIX)) {
+			// On localhost, we MUST ignore any incoming __Secure- cookies.
+			// The browser invalidates them (triggers them as session-only or simply invalid) because we are on HTTP.
+			// We only trust the '__-' cookies which we explicitly set for localhost.
+			if (isLocalhost && name.startsWith('__Secure-')) {
+				continue;
+			}
+
+			// If we find a specific non-secure prefix used by Neon Auth for http, upgrade it for the https upstream
+			if (name.startsWith('__-')) {
+				name = name.replace('__-', '__Secure-');
+			}
+			cookies.set(name, value);
 		}
 	}
-	return cookies.join('; ');
+	return Array.from(cookies.entries())
+		.map(([key, value]) => `${key}=${value}`)
+		.join('; ');
 }
 
 /**
@@ -70,16 +89,6 @@ async function handleAuthRequest(request: Request, path: string): Promise<Respon
 	const upstreamUrl = new URL(`${baseUrl}/${path}`);
 	upstreamUrl.search = originalUrl.search;
 
-	// Debug logging
-	console.log('[Auth Proxy Debug] Request details:', {
-		method: request.method,
-		path,
-		baseUrl,
-		upstreamUrl: upstreamUrl.toString(),
-		headers: Object.fromEntries(headers.entries()),
-		body: body ? `${body.substring(0, 200)}...` : undefined
-	});
-
 	try {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -96,14 +105,6 @@ async function handleAuthRequest(request: Request, path: string): Promise<Respon
 		// Create response with same status and body
 		const responseBody = await upstreamResponse.text();
 
-		// Debug logging for response
-		console.log('[Auth Proxy Debug] Response from Neon Auth:', {
-			status: upstreamResponse.status,
-			statusText: upstreamResponse.statusText,
-			responseBody: responseBody.substring(0, 500),
-			contentType: upstreamResponse.headers.get('content-type'),
-			setCookie: upstreamResponse.headers.getSetCookie()
-		});
 		const responseHeaders = new Headers();
 
 		// Copy content-type
@@ -114,7 +115,24 @@ async function handleAuthRequest(request: Request, path: string): Promise<Respon
 
 		// Handle set-cookie headers (there can be multiple)
 		const setCookieHeaders = upstreamResponse.headers.getSetCookie();
-		for (const cookie of setCookieHeaders) {
+		const isLocalhost = new URL(request.url).hostname === 'localhost';
+
+		for (let cookie of setCookieHeaders) {
+			if (isLocalhost) {
+				// If the cookie was originally __Secure-, we need to delete the old one from the browser
+				// to prevent conflicts where the browser sends the old __Secure- cookie instead of our new __- one.
+				if (cookie.startsWith('__Secure-')) {
+					const cookieName = cookie.split('=')[0];
+					responseHeaders.append('set-cookie', `${cookieName}=; Max-Age=0; Path=/; SameSite=Lax`);
+				}
+
+				// Rename __Secure- to __- so it can be set without Secure flag (browser requirement)
+				cookie = cookie.replace('__Secure-', '__-');
+				// Strip Secure flag if on localhost, as we are likely on HTTP
+				cookie = cookie.replace(/;?\s*Secure/gi, '');
+				// SameSite=None requires Secure, so change it to Lax for HTTP
+				cookie = cookie.replace(/SameSite=None/gi, 'SameSite=Lax');
+			}
 			responseHeaders.append('set-cookie', cookie);
 		}
 
