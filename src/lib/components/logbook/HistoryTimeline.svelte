@@ -2,8 +2,15 @@
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
 	import { get } from 'svelte/store';
-	import { formatDate } from '$lib/utils/dateUtils';
 	import type { Log, Status } from '$lib/types';
+
+	function formatDate(date: Date): string {
+		return date.toLocaleDateString('en-US', {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric'
+		});
+	}
 	import { getLogsForProblem } from '$lib/stores/logsStore';
 	import { logs } from '$lib/stores/logsStore';
 	import { enhance } from '$app/forms';

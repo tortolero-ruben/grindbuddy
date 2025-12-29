@@ -2,7 +2,7 @@
 	import Badge from './Badge.svelte';
 	import { getStatusColor, getStatusIcon } from '$lib/utils/statusUtils';
 	import type { Status } from '$lib/types';
-	import * as icons from 'lucide-svelte';
+	import { Zap, CheckCircle, HelpCircle, Eye, AlertTriangle, Circle } from 'lucide-svelte';
 
 	interface Props {
 		status: Status;
@@ -12,7 +12,17 @@
 	let { status, showIcon = false }: Props = $props();
 
 	const colorClass = $derived(getStatusColor(status));
-	const IconComponent = $derived(icons[getStatusIcon(status) as keyof typeof icons] as typeof icons.Zap);
+
+	const iconMap = {
+		Optimal: Zap,
+		Suboptimal: CheckCircle,
+		Hints: HelpCircle,
+		Solution: Eye,
+		Failed: AlertTriangle,
+		Circle
+	};
+
+	const IconComponent = $derived(iconMap[status] || Circle);
 </script>
 
 <Badge variant="status" class={colorClass}>
