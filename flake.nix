@@ -15,7 +15,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             nodejs_22
-            nodePackages.npm
+            railway
           ];
 
           shellHook = ''
@@ -24,10 +24,11 @@
             echo "npm version: $(npm --version)"
             echo ""
             echo "Available commands:"
-            echo "  npm run dev     - Start development server"
-            echo "  npm run build   - Build for production"
-            echo "  npm run start   - Start production server"
-            echo "  npm run test    - Run tests"
+            echo "  npm run dev       - Start development server"
+            echo "  npm run build     - Build for production"
+            echo "  npm run start     - Start production server"
+            echo "  npm run test      - Run tests"
+            echo "  railpack build .  - Test Railway build locally"
             echo ""
           '';
         };
