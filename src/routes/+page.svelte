@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ArrowRight, Brain, Zap, TrendingUp } from 'lucide-svelte';
+	import { ArrowRight, Brain, Zap, TrendingUp } from '@lucide/svelte';
 	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';

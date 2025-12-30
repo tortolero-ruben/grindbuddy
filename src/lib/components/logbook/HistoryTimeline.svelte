@@ -14,7 +14,7 @@
 	import { getLogsForProblem } from '$lib/stores/logsStore';
 	import { logs } from '$lib/stores/logsStore';
 	import { enhance } from '$app/forms';
-	import { Trash2 } from 'lucide-svelte';
+	import { Trash2 } from '@lucide/svelte';
 
 	interface Props {
 		problemId: string;

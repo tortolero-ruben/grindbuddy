@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Sun, Moon, Laptop } from 'lucide-svelte';
+	import { Sun, Moon, Laptop } from '@lucide/svelte';
 	import { setMode, resetMode } from 'mode-watcher';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';

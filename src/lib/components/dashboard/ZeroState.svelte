@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/Button.svelte';
-	import { CheckCircle2 } from 'lucide-svelte';
+	import { CheckCircle2 } from '@lucide/svelte';
 	import { openSearchModal } from '$lib/stores/logsStore';
 </script>
 

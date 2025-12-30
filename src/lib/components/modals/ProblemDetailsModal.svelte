@@ -5,7 +5,7 @@
 	import PatternBadge from '$lib/components/ui/PatternBadge.svelte';
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
 	import HistoryTimeline from '$lib/components/logbook/HistoryTimeline.svelte';
-	import { ExternalLink, Plus, X } from 'lucide-svelte';
+	import { ExternalLink, Plus, X } from '@lucide/svelte';
 	import type { ProblemWithLogs } from '$lib/types';
 	import { openLogModal } from '$lib/stores/logsStore';
 

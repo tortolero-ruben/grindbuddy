@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { LayoutDashboard, BarChart2, BookOpen, Plus, LogOut } from 'lucide-svelte';
+	import { LayoutDashboard, BarChart2, BookOpen, Plus, LogOut } from '@lucide/svelte';
 	import { openSearchModal } from '$lib/stores/logsStore';
 	import { signOut } from '$lib/auth-client';
 	import { goto } from '$app/navigation';
@@ -32,7 +32,7 @@
 					? 'text-indigo-600 dark:text-indigo-400'
 					: 'text-slate-600 dark:text-slate-400'}"
 			>
-				{@render item.icon({ class: 'h-6 w-6' })}
+				<item.icon class="h-6 w-6" />
 				{item.label}
 			</a>
 		{/each}

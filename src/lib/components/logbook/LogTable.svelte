@@ -36,7 +36,7 @@
 		const diffInMonths = Math.floor(diffInDays / 30);
 		return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
 	}
-	import { ExternalLink, Plus } from 'lucide-svelte';
+	import { ExternalLink, Plus } from '@lucide/svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { openLogModal } from '$lib/stores/logsStore';
 	import ProblemDetailsModal from '$lib/components/modals/ProblemDetailsModal.svelte';

@@ -1,4 +1,4 @@
-import { signInEmail } from '$lib/server/auth-api';
+import { signInEmail, applyResponseCookies } from '$lib/server/auth-api';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals, url, fetch }) => {
+	default: async ({ request, locals, url, fetch, cookies }) => {
 		const form = await request.formData();
 		const email = String(form.get('email') ?? '').trim().toLowerCase();
 		const password = String(form.get('password') ?? '');
@@ -23,8 +23,9 @@ export const actions: Actions = {
 		try {
 			const result = await signInEmail({ email, password }, fetch);
 
-			if (result?.user) {
+			if (result?.user && result?.response) {
 				// If successful, redirect. Cookies are set by the auth proxy.
+				applyResponseCookies(cookies, result.response);
 				throw redirect(303, url.searchParams.get('redirectTo') ?? '/dashboard');
 			}
 
@@ -32,11 +33,17 @@ export const actions: Actions = {
 			return fail(401, { email, message: 'Invalid email or password.' });
 
 		} catch (error) {
+			// If it's a redirect, re-throw it
+			if (error && typeof error === 'object' && 'status' in error && (error.status === 303 || error.status === 302)) {
+				throw error;
+			}
+
 			if (error instanceof Error && 'status' in error) {
 				// APIError
 				return fail(401, { email, message: (error as any).body?.message || error.message });
 			}
 			if (error instanceof Error) {
+				// Don't leak internal errors, but for now we'll keep it for debugging
 				return fail(500, { email, message: error.message });
 			}
 			return fail(500, { email, message: 'Unable to sign in. Please try again.' });

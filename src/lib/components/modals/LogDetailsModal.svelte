@@ -8,7 +8,7 @@
 	import PatternBadge from '$lib/components/ui/PatternBadge.svelte';
 	import { selectedProblem, closeLogModal, addLog } from '$lib/stores/logsStore';
 	import type { Status, Log } from '$lib/types';
-	import { Zap, CheckCircle, HelpCircle, Eye, AlertTriangle } from 'lucide-svelte';
+	import { Zap, CheckCircle, HelpCircle, Eye, AlertTriangle } from '@lucide/svelte';
 
 	interface Props {
 		open: boolean;

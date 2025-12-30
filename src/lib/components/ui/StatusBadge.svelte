@@ -2,7 +2,7 @@
 	import Badge from './Badge.svelte';
 	import { getStatusColor, getStatusIcon } from '$lib/utils/statusUtils';
 	import type { Status } from '$lib/types';
-	import { Zap, CheckCircle, HelpCircle, Eye, AlertTriangle, Circle } from 'lucide-svelte';
+	import { Zap, CheckCircle, HelpCircle, Eye, AlertTriangle, Circle } from '@lucide/svelte';
 
 	interface Props {
 		status: Status;

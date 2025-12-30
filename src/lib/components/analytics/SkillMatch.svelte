@@ -5,7 +5,7 @@
 	import type { Pattern, ProblemWithLogs } from '$lib/types';
 	import { problemsWithLogs } from '$lib/stores/logsStore';
 	import { get } from 'svelte/store';
-	import { RefreshCw } from 'lucide-svelte';
+	import { RefreshCw } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	interface DynamicCompany {
