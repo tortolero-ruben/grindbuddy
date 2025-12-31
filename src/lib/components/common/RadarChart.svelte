@@ -8,16 +8,19 @@
 		label: string;
 		data: number[];
 		color: string;
+		counts?: number[]; // Optional counts for tooltips
 	};
 
 	let {
 		labels,
 		primaryData,
-		comparisonData = null
+		comparisonData = null,
+		totalQuestionsAnswered = 0
 	}: {
 		labels: string[];
 		primaryData: DataSet;
 		comparisonData?: DataSet | null;
+		totalQuestionsAnswered?: number;
 	} = $props();
 
 	let canvasEl: HTMLCanvasElement | null = null;
@@ -41,25 +44,82 @@
 		return color;
 	}
 
+	// Calculate dynamic max scale based on data
+	const dynamicMax = $derived.by(() => {
+		const allValues: number[] = [];
+		
+		// Collect all data values from primary dataset
+		primaryData.data.forEach(val => {
+			if (val !== null && val !== undefined && !isNaN(val)) {
+				allValues.push(val);
+			}
+		});
+		
+		// Collect all data values from comparison dataset if present
+		if (comparisonData) {
+			comparisonData.data.forEach(val => {
+				if (val !== null && val !== undefined && !isNaN(val)) {
+					allValues.push(val);
+				}
+			});
+		}
+		
+		if (allValues.length === 0) return 100;
+		
+		const maxValue = Math.max(...allValues);
+		
+		// If max is already close to 100, use 100
+		if (maxValue >= 90) return 100;
+		
+		// Add 20% padding above the max value, rounded to nearest 5
+		const paddedMax = maxValue * 1.2;
+		const roundedMax = Math.ceil(paddedMax / 5) * 5;
+		
+		// Ensure minimum scale of 20 for visibility of small values
+		// But if max is very small (< 10), use a minimum of max * 2
+		const minScale = maxValue < 10 ? Math.max(20, maxValue * 2) : 20;
+		
+		return Math.max(minScale, Math.min(roundedMax, 100));
+	});
+
+	// Calculate step size based on total questions answered
+	// More questions = smaller increments (more granular scale)
+	const dynamicStepSize = $derived.by(() => {
+		// Base step size on data range
+		let baseStepSize = dynamicMax <= 50 ? 10 : 20;
+		
+		// Adjust based on total questions answered
+		if (totalQuestionsAnswered === 0) {
+			// No questions answered - use default
+			return baseStepSize;
+		} else if (totalQuestionsAnswered <= 10) {
+			// Few questions - larger increments
+			return Math.max(baseStepSize, 10);
+		} else if (totalQuestionsAnswered <= 25) {
+			// Some questions - medium increments
+			return 5;
+		} else if (totalQuestionsAnswered <= 50) {
+			// Many questions - smaller increments
+			return 2;
+		} else {
+			// Lots of questions - very small increments
+			return 1;
+		}
+	});
+
 	const chartConfig = $derived.by(() => {
 		const datasets = [
 			{
 				label: primaryData.label,
 				data: primaryData.data,
+				counts: primaryData.counts,
 				backgroundColor: toRgba(primaryData.color, 0.4),
 				borderColor: primaryData.color,
-				pointBackgroundColor: primaryData.data.map((val) => {
-					if (val >= 70) return 'rgb(16, 185, 129)'; // emerald-600
-					if (val >= 30) return 'rgb(245, 158, 11)'; // amber-500
-					return 'rgb(225, 29, 72)'; // rose-600
-				}) as any,
-				pointBorderColor: primaryData.color,
-				pointHoverBackgroundColor: 'rgb(255, 255, 255)',
-				pointHoverBorderColor: primaryData.color,
 				fill: true,
 				borderWidth: 2,
-				pointRadius: 3,
-				pointHoverRadius: 5,
+				pointRadius: 0,
+				pointHoverRadius: 0,
+				pointHitRadius: 10, // Invisible hover area for tooltips
 				order: 2
 			} as any
 		];
@@ -68,16 +128,14 @@
 			datasets.push({
 				label: comparisonData.label,
 				data: comparisonData.data,
+				counts: comparisonData.counts,
 				backgroundColor: toRgba(comparisonData.color, 0.2),
 				borderColor: comparisonData.color,
-				pointBackgroundColor: comparisonData.color as any,
-				pointBorderColor: comparisonData.color as any,
-				pointHoverBackgroundColor: 'rgb(255, 255, 255)',
-				pointHoverBorderColor: comparisonData.color,
 				fill: true,
 				borderWidth: 2,
-				pointRadius: 3,
-				pointHoverRadius: 5,
+				pointRadius: 0,
+				pointHoverRadius: 0,
+				pointHitRadius: 10, // Invisible hover area for tooltips
 				order: 1 // Draw behind primary
 			} as any);
 		}
@@ -102,7 +160,21 @@
 				},
 				tooltip: {
 					callbacks: {
-						label: (context: any) => `${context.dataset.label}: ${context.formattedValue}%`
+						label: (context: any) => {
+							const dataset = context.dataset;
+							const dataIndex = context.dataIndex;
+							
+							// For radar charts, the value is at context.parsed.r
+							// Fallback to dataset.data if parsed.r is not available
+							const rawValue = context.parsed?.r ?? dataset.data[dataIndex] ?? 0;
+							const percentage = typeof rawValue === 'number' ? Math.round(rawValue) : Number(rawValue) || 0;
+							const counts = dataset.counts;
+							
+							if (counts && Array.isArray(counts) && counts[dataIndex] !== undefined && counts[dataIndex] !== null) {
+								return `${dataset.label}: ${percentage}% (${counts[dataIndex]} ${counts[dataIndex] === 1 ? 'question' : 'questions'})`;
+							}
+							return `${dataset.label}: ${percentage}%`;
+						}
 					},
 					backgroundColor: 'rgba(15, 23, 42, 0.9)', // slate-900
 					titleColor: 'rgb(241, 245, 249)', // slate-100
@@ -114,16 +186,19 @@
 			scales: {
 				r: {
 					beginAtZero: true,
-					max: 100,
+					max: dynamicMax,
 					ticks: {
 						display: false, // Hide numerical ticks to reduce clutter
-						backdropColor: 'transparent'
+						backdropColor: 'transparent',
+						stepSize: dynamicStepSize // Adjust step size based on total questions answered
 					},
 					angleLines: {
-						color: 'rgba(255, 255, 255, 0.1)' // faint white
+						color: 'rgba(255, 255, 255, 0.15)', // slightly more visible for web effect
+						lineWidth: 1
 					},
 					grid: {
-						color: 'rgba(255, 255, 255, 0.1)' // faint white
+						color: 'rgba(255, 255, 255, 0.1)', // faint white
+						lineWidth: 1
 					},
 					pointLabels: {
 						color: 'rgb(226, 232, 240)', // slate-200 (much lighter)
