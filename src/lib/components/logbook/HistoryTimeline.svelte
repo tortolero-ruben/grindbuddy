@@ -1,7 +1,6 @@
 <script lang="ts">
 	import StatusBadge from '$lib/components/ui/StatusBadge.svelte';
 	import Badge from '$lib/components/ui/Badge.svelte';
-	import { get } from 'svelte/store';
 	import type { Log, Status } from '$lib/types';
 
 	function formatDate(date: Date): string {
@@ -11,8 +10,7 @@
 			day: 'numeric'
 		});
 	}
-	import { getLogsForProblem } from '$lib/stores/logsStore';
-	import { logs } from '$lib/stores/logsStore';
+	import { getLogsForProblem, logsStore } from '$lib/stores/logsStore';
 	import { enhance } from '$app/forms';
 	import { Trash2 } from '@lucide/svelte';
 
@@ -25,7 +23,7 @@
 	let selectedFilter: Status | 'All' = $state('All');
 	const filters: (Status | 'All')[] = ['All', 'Optimal', 'Suboptimal', 'Hints', 'Solution', 'Failed'];
 
-	const allLogs = $derived(getLogsForProblem(problemId, $logs));
+	const allLogs = $derived(getLogsForProblem(problemId, logsStore.logs));
 	const problemLogs = $derived(
 		selectedFilter === 'All' 
 			? allLogs 

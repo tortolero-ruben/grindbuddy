@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { LayoutDashboard, BarChart2, BookOpen, Plus, User } from '@lucide/svelte';
 	import { openSearchModal } from '$lib/stores/logsStore';
 	import { signOut } from '$lib/auth-client';
 	import { goto } from '$app/navigation';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 
 	type UserType = App.Locals['user'];
 
@@ -39,7 +40,7 @@
 					{#each navItems as item (item.path)}
 						<a
 							href={item.path}
-							class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {$page
+							class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {page
 								.url.pathname === item.path
 								? 'text-indigo-600 dark:text-indigo-400'
 								: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50'}"
@@ -54,6 +55,7 @@
 			<!-- Right side: User avatar and Log Problem button -->
 			{#if user}
 				<div class="flex items-center gap-4">
+					<ModeToggle />
 					<Button onclick={openSearchModal} variant="primary" size="sm">
 						<Plus class="mr-2 h-4 w-4" />
 						Log Problem
@@ -72,6 +74,7 @@
 				</div>
 			{:else}
 				<div class="flex items-center gap-3">
+					<ModeToggle />
 					<a
 						href="/login"
 						class="text-sm font-medium text-slate-700 hover:text-indigo-600 dark:text-slate-200 dark:hover:text-indigo-300"

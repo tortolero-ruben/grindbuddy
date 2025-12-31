@@ -14,6 +14,7 @@ export async function GET({ params }) {
 
     const mappings = await db.select({
         patterns: problems.patterns,
+        difficulty: problems.difficulty,
         frequency: companyProblems.frequency
     })
         .from(companyProblems)
@@ -21,24 +22,42 @@ export async function GET({ params }) {
         .where(eq(companyProblems.companyId, company.id));
 
     const patternCounts: Record<string, number> = {};
+    const patternDifficulty: Record<string, { Easy: number; Medium: number; Hard: number }> = {};
+    
     mappings.forEach(m => {
         m.patterns.forEach(p => {
+            // Count patterns
             patternCounts[p] = (patternCounts[p] || 0) + 1;
+            
+            // Count difficulty distribution per pattern
+            if (!patternDifficulty[p]) {
+                patternDifficulty[p] = { Easy: 0, Medium: 0, Hard: 0 };
+            }
+            const difficulty = m.difficulty as 'Easy' | 'Medium' | 'Hard';
+            if (difficulty in patternDifficulty[p]) {
+                patternDifficulty[p][difficulty]++;
+            }
         });
     });
 
-    const maxCount = Math.max(...Object.values(patternCounts), 0);
+    // Calculate total number of problems for this company
+    const totalProblems = mappings.length;
     const patterns: Record<string, number> = {};
+    const patternCountsData: Record<string, number> = {};
 
-    if (maxCount > 0) {
+    if (totalProblems > 0) {
         Object.entries(patternCounts).forEach(([pattern, count]) => {
-            // Normalize so the most frequent pattern is 100%
-            patterns[pattern] = Math.round((count / maxCount) * 100);
+            // Calculate actual percentage: count / total problems * 100
+            patterns[pattern] = Math.round((count / totalProblems) * 100);
+            patternCountsData[pattern] = count;
         });
     }
 
     return json({
         ...company,
-        patterns
+        patterns,
+        patternCounts: patternCountsData,
+        patternDifficulty,
+        totalProblems
     });
 }

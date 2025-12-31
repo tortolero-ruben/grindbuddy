@@ -4,7 +4,7 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import DifficultyBadge from '$lib/components/ui/DifficultyBadge.svelte';
 	// import { searchProblems } from '$lib/data/mockProblems';
-	import { problems, closeSearchModal, openLogModal } from '$lib/stores/logsStore';
+	import { logsStore, closeSearchModal, openLogModal } from '$lib/stores/logsStore';
 	import { onMount } from 'svelte';
 	import type { Problem } from '$lib/types';
 
@@ -22,7 +22,7 @@
 	const searchResults = $derived(
 		!searchQuery.trim() 
 			? [] 
-			: $problems.filter(p => 
+			: logsStore.problems.filter(p => 
 					p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
 					p.number.toString().includes(searchQuery)
 			  )
@@ -70,7 +70,7 @@
 		{#if searchQuery.trim()}
 			{#if searchResults.length > 0}
 				<ul class="max-h-96 overflow-y-auto">
-					{#each searchResults as result, index}
+					{#each searchResults as result, index (result.id)}
 						<li>
 							<button
 								class="w-full px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {selectedIndex ===

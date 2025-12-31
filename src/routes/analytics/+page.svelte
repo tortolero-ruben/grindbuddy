@@ -11,15 +11,23 @@
 
 	<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 		<!-- Pattern Mastery Radar -->
-		<Card class="p-6">
-			<h2 class="mb-4 text-h2">Pattern Mastery (Radar)</h2>
-			<PatternMasteryChart />
+		<Card class="p-6 flex flex-col min-h-[800px]">
+			<div class="flex flex-col h-full">
+				<h2 class="mb-4 text-h2">Pattern Mastery (Radar)</h2>
+				<div class="flex-1 flex flex-col min-h-0">
+					<PatternMasteryChart />
+				</div>
+			</div>
 		</Card>
 
 		<!-- Skill Match -->
-		<Card class="p-6">
-			<h2 class="mb-4 text-h2">Skill Match</h2>
-			<SkillMatch />
+		<Card class="p-6 flex flex-col min-h-[800px]">
+			<div class="flex flex-col h-full">
+				<h2 class="mb-4 text-h2">Skill Match</h2>
+				<div class="flex-1 flex flex-col min-h-0">
+					<SkillMatch />
+				</div>
+			</div>
 		</Card>
 
 		<!-- Activity Heatmap -->

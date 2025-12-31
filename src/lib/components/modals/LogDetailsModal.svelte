@@ -6,7 +6,7 @@
 	import Select from '$lib/components/ui/Select.svelte';
 	import DifficultyBadge from '$lib/components/ui/DifficultyBadge.svelte';
 	import PatternBadge from '$lib/components/ui/PatternBadge.svelte';
-	import { selectedProblem, closeLogModal, addLog } from '$lib/stores/logsStore';
+	import { logsStore, closeLogModal, addLog, updateLogs } from '$lib/stores/logsStore';
 	import type { Status, Log } from '$lib/types';
 	import { Zap, CheckCircle, HelpCircle, Eye, AlertTriangle } from '@lucide/svelte';
 
@@ -53,41 +53,24 @@
 	const canSave = $derived(outcome !== '');
 
 	$effect(() => {
-		if (open && $selectedProblem) {
+		if (open && logsStore.selectedProblem) {
 			outcome = '';
 			timeComplexity = '';
 			spaceComplexity = '';
 			notes = '';
 		}
 	});
-
-	function handleSave() {
-		if (!$selectedProblem || !canSave) return;
-
-		const newLog = {
-			id: `log-${Date.now()}`,
-			problemId: $selectedProblem.id,
-			status: outcome as Status,
-			timeComplexity: timeComplexity || undefined,
-			spaceComplexity: spaceComplexity || undefined,
-			notes: notes.trim(),
-			timestamp: new Date()
-		};
-
-		addLog(newLog);
-		closeLogModal();
-	}
 </script>
 
-{#if $selectedProblem}
-	<Dialog {open} {onClose} class="md:flex">
+{#if logsStore.selectedProblem}
+	<Dialog {open} {onClose} class="max-w-2xl">
 		<div class="p-6">
 			<!-- Header -->
 			<div class="mb-6">
-				<h2 class="mb-2 text-xl font-semibold">{$selectedProblem.title}</h2>
+				<h2 class="mb-2 text-xl font-semibold">{logsStore.selectedProblem.title}</h2>
 				<div class="flex flex-wrap items-center gap-2">
-					<DifficultyBadge difficulty={$selectedProblem.difficulty} />
-					{#each $selectedProblem.patterns as pattern (pattern)}
+					<DifficultyBadge difficulty={logsStore.selectedProblem.difficulty} />
+					{#each logsStore.selectedProblem.patterns as pattern (pattern)}
 						<PatternBadge {pattern} />
 					{/each}
 				</div>
@@ -98,16 +81,38 @@
 				method="POST"
 				action="/?/createLog"
 				use:enhance={() => {
-					return async ({ result, update }) => {
+					return async ({ result }) => {
 						if (result.type === 'success') {
-							onClose();
-							await update();
+							// Check if result.data has the log
+							const logData = (result.data as any)?.log;
+							if (logData) {
+								// Add the new log to the store immediately (optimistic update)
+								const newLog: Log = {
+									id: logData.id,
+									problemId: logData.problemId,
+									status: logData.status,
+									timeComplexity: logData.timeComplexity,
+									spaceComplexity: logData.spaceComplexity,
+									notes: logData.notes || '',
+									timestamp: logData.timestamp instanceof Date 
+										? logData.timestamp 
+										: new Date(logData.timestamp)
+								};
+								addLog(newLog);
+								onClose();
+								// Don't call update() - we already have the log from the server response
+								// This avoids unnecessary DB calls and layout reloads
+							} else {
+								// Fallback: if log not returned, close modal
+								// The log should still be in DB, user can refresh if needed
+								onClose();
+							}
 						}
 					};
 				}}
 				class="space-y-6"
 			>
-				<input type="hidden" name="problemId" value={$selectedProblem.id} />
+				<input type="hidden" name="problemId" value={logsStore.selectedProblem.id} />
 				<input type="hidden" name="status" value={outcome} />
 
 				<!-- Outcome Section -->

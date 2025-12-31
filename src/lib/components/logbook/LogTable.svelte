@@ -36,11 +36,6 @@
 		const diffInMonths = Math.floor(diffInDays / 30);
 		return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
 	}
-	import { ExternalLink, Plus } from '@lucide/svelte';
-	import Button from '$lib/components/ui/Button.svelte';
-	import { openLogModal } from '$lib/stores/logsStore';
-	import ProblemDetailsModal from '$lib/components/modals/ProblemDetailsModal.svelte';
-
 	import { openDetailsModal } from '$lib/stores/logsStore';
 
 	interface Props {
@@ -76,7 +71,7 @@
 					</td>
 					<td class="px-4 py-3">
 						<div class="flex flex-wrap gap-1">
-							{#each problem.patterns.slice(0, 2) as pattern}
+							{#each problem.patterns.slice(0, 2) as pattern (pattern)}
 								<PatternBadge {pattern} />
 							{/each}
 							{#if problem.patterns.length > 2}
@@ -103,9 +98,3 @@
 		</tbody>
 	</table>
 </div>
-
-<ProblemDetailsModal
-	open={isModalOpen}
-	onClose={() => (isModalOpen = false)}
-	problem={selectedProblemForDetails}
-/>

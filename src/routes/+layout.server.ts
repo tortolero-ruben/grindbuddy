@@ -11,7 +11,10 @@ const isPublicRoute = (pathname: string) =>
 	pathname === '/favicon.ico' ||
 	pathname === '/robots.txt';
 
-export const load: LayoutServerLoad = async ({ locals, url }) => {
+export const load: LayoutServerLoad = async ({ locals, url, depends }) => {
+	// Add dependency on user to prevent unnecessary reloads when user doesn't change
+	depends('app:user');
+	
 	if (!locals.user && !isPublicRoute(url.pathname)) {
 		const redirectTo = encodeURIComponent(url.pathname + url.search);
 		throw redirect(302, `/login?redirectTo=${redirectTo}`);
@@ -25,20 +28,26 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	let logs: Awaited<ReturnType<typeof getLogs>> = [];
 
 	if (!isPublic) {
-		try {
-			problems = await getProblems();
-		} catch (error) {
-			console.error('Failed to fetch problems:', error);
-			// Continue with empty array instead of crashing
+		// Fetch problems and logs in parallel for better performance
+		const [problemsResult, logsResult] = await Promise.allSettled([
+			getProblems().catch(error => {
+				console.error('Failed to fetch problems:', error);
+				return [];
+			}),
+			locals.user 
+				? getLogs(locals.user.id).catch(error => {
+					console.error('Failed to fetch logs:', error);
+					return [];
+				  })
+				: Promise.resolve([])
+		]);
+
+		if (problemsResult.status === 'fulfilled') {
+			problems = problemsResult.value;
 		}
 
-		if (locals.user) {
-			try {
-				logs = await getLogs(locals.user.id);
-			} catch (error) {
-				console.error('Failed to fetch logs:', error);
-				// Continue with empty array instead of crashing
-			}
+		if (logsResult.status === 'fulfilled') {
+			logs = logsResult.value;
 		}
 	}
 

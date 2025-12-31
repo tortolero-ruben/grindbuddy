@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { ArrowRight, Brain, Zap, TrendingUp } from '@lucide/svelte';
-	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';
 </script>
@@ -19,7 +18,6 @@
 			Grind<span class="text-primary">Buddy</span>
 		</a>
 		<div class="flex items-center gap-4">
-			<ModeToggle />
 			<a
 				href="/login"
 				class="text-sm font-medium hover:text-primary transition-colors"
@@ -161,7 +159,7 @@
 
 			<div class="relative group">
 				<!-- Mock Radar Chart Design -->
-				<div class="relative aspect-square max-w-[500px] mx-auto rounded-3xl border border-white/10 bg-black/20 p-8 backdrop-blur-xl transition-all hover:border-primary/30">
+				<div class="relative aspect-square max-w-[500px] mx-auto rounded-2xl border border-white/5 bg-white/5 p-6 backdrop-blur-xl transition-all duration-300 hover:border-white/10 hover:bg-white/10 hover:shadow-2xl hover:shadow-primary/5">
 					<div class="absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 to-transparent blur-3xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
 					
 					<div class="flex h-full w-full items-center justify-center">
@@ -184,12 +182,12 @@
 
 					<!-- Floating Badges -->
 					<div class="absolute -left-4 top-1/4 animate-bounce-slow">
-						<div class="rounded-xl border border-white/10 bg-black/60 px-4 py-2 text-xs font-bold shadow-2xl backdrop-blur-md">
-							<span class="text-blue-400">Google</span> Match: 78%
+						<div class="rounded-xl border border-white/10 dark:border-white/10 border-slate-300/20 bg-white/80 dark:bg-black/60 px-4 py-2 text-xs font-bold text-slate-900 dark:text-white shadow-2xl backdrop-blur-md">
+							<span class="text-blue-600 dark:text-blue-400">Google</span> Match: 78%
 						</div>
 					</div>
 					<div class="absolute -right-4 bottom-1/4 animate-float">
-						<div class="rounded-xl border border-white/10 bg-black/60 px-4 py-2 text-xs font-bold shadow-2xl backdrop-blur-md">
+						<div class="rounded-xl border border-white/10 dark:border-white/10 border-slate-300/20 bg-white/80 dark:bg-black/60 px-4 py-2 text-xs font-bold text-slate-900 dark:text-white shadow-2xl backdrop-blur-md">
 							<span class="text-primary">Amazon</span> Target
 						</div>
 					</div>
