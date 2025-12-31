@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { LayoutDashboard, BarChart2, BookOpen, Plus, LogOut } from '@lucide/svelte';
 	import { openSearchModal } from '$lib/stores/logsStore';
 	import { signOut } from '$lib/auth-client';
@@ -27,7 +27,7 @@
 		{#each navItems as item (item.path)}
 			<a
 				href={item.path}
-				class="flex flex-col items-center justify-center gap-1 px-4 py-2 text-xs font-medium transition-colors {$page
+				class="flex flex-col items-center justify-center gap-1 px-4 py-2 text-xs font-medium transition-colors {page
 					.url.pathname === item.path
 					? 'text-indigo-600 dark:text-indigo-400'
 					: 'text-slate-600 dark:text-slate-400'}"

@@ -1,6 +1,5 @@
 <script lang="ts">
-import { logs } from '$lib/stores/logsStore';
-import { get } from 'svelte/store';
+	import { logsStore } from '$lib/stores/logsStore';
 	import type { Log } from '$lib/types';
 
 	// Generate last 365 days
@@ -17,7 +16,7 @@ import { get } from 'svelte/store';
 	// Count logs per day
 	const logCounts = $derived.by(() => {
 		const counts = new Map<string, number>();
-		get(logs).forEach((log: Log) => {
+		logsStore.logs.forEach((log: Log) => {
 			const dateKey = new Date(log.timestamp).toISOString().split('T')[0];
 			counts.set(dateKey, (counts.get(dateKey) || 0) + 1);
 		});

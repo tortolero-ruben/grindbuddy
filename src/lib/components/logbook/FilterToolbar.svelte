@@ -2,9 +2,8 @@
 	import Input from '$lib/components/ui/Input.svelte';
 	import Select from '$lib/components/ui/Select.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
-	import { get } from 'svelte/store';
 	import type { Pattern, Status, Difficulty, Problem } from '$lib/types';
-	import { problems } from '$lib/stores/logsStore';
+	import { logsStore } from '$lib/stores/logsStore';
 
 	interface Props {
 		searchQuery: string;
@@ -40,7 +39,7 @@
 
 	// Get unique patterns, statuses, and difficulties
 	const allPatterns = $derived.by(() =>
-		Array.from(new Set(get(problems).flatMap((p: Problem) => p.patterns))).sort()
+		Array.from(new Set(logsStore.problems.flatMap((p: Problem) => p.patterns))).sort()
 	);
 	const allStatuses: Status[] = ['Optimal', 'Suboptimal', 'Hints', 'Solution', 'Failed'];
 	const allDifficulties: Difficulty[] = ['Easy', 'Medium', 'Hard'];

@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import FilterToolbar from '$lib/components/logbook/FilterToolbar.svelte';
 	import LogTable from '$lib/components/logbook/LogTable.svelte';
 	import ProblemCard from '$lib/components/dashboard/ProblemCard.svelte';
-	import { problemsWithLogs } from '$lib/stores/logsStore';
-	import { get } from 'svelte/store';
+	import { logsStore } from '$lib/stores/logsStore';
 	import type { Pattern, Status, Difficulty } from '$lib/types';
 
 	let searchQuery = $state('');
@@ -14,18 +13,19 @@
 	let selectedDateRange = $state('');
 	let selectedTimeComplexity = $state('');
 
-	// Get initial filter from URL
+	// Get initial filter from URL - use $derived for reactivity
+	const initialPattern = $derived(page.url.searchParams.get('pattern'));
+	
 	$effect(() => {
-		const patternParam = $page.url.searchParams.get('pattern');
-		if (patternParam) {
-			selectedPattern = decodeURIComponent(patternParam);
+		if (initialPattern) {
+			selectedPattern = decodeURIComponent(initialPattern);
 		}
 	});
 
 	// Reactive filtered problems
 	let filteredProblems = $derived.by(() => {
 		// Default to only problems that have been attempted (have logs)
-		let filtered = $problemsWithLogs.filter(p => p.logs.length > 0);
+		let filtered = logsStore.problemsWithLogs.filter(p => p.logs.length > 0);
 
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
@@ -119,7 +119,7 @@
 
 			<!-- Mobile: Card View -->
 			<div class="md:hidden space-y-4">
-				{#each filteredProblems as problem}
+				{#each filteredProblems as problem (problem.id)}
 					<ProblemCard {problem} />
 				{/each}
 			</div>

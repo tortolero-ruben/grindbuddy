@@ -1,25 +1,28 @@
 <script lang="ts">
-	import { get } from 'svelte/store';
 	import type { Pattern, ProblemWithLogs } from '$lib/types';
-	import { problemsWithLogs } from '$lib/stores/logsStore';
+	import { logsStore } from '$lib/stores/logsStore';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';
 
 	// Calculate mastery per pattern
+	// Only calculate for problems that have logs (have been attempted)
 	const patternMastery = $derived.by(() => {
 		const patternMap = new Map<Pattern, { total: number; optimal: number }>();
 
-		get(problemsWithLogs).forEach((problem: ProblemWithLogs) => {
-			problem.patterns.forEach((pattern: Pattern) => {
-				if (!patternMap.has(pattern)) {
-					patternMap.set(pattern, { total: 0, optimal: 0 });
-				}
-				const stats = patternMap.get(pattern)!;
-				stats.total++;
-				if (problem.lastLog?.status === 'Optimal') {
-					stats.optimal++;
-				}
+		// Filter to only problems with logs to avoid counting unattempted problems
+		logsStore.problemsWithLogs
+			.filter(problem => problem.logs.length > 0)
+			.forEach((problem: ProblemWithLogs) => {
+				problem.patterns.forEach((pattern: Pattern) => {
+					if (!patternMap.has(pattern)) {
+						patternMap.set(pattern, { total: 0, optimal: 0 });
+					}
+					const stats = patternMap.get(pattern)!;
+					stats.total++;
+					if (problem.lastLog?.status === 'Optimal') {
+						stats.optimal++;
+					}
+				});
 			});
-		});
 
 		const mastery: { pattern: Pattern; percentage: number }[] = [];
 		patternMap.forEach((stats, pattern) => {

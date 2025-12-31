@@ -3,8 +3,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';
 	import type { Pattern, ProblemWithLogs } from '$lib/types';
-	import { problemsWithLogs } from '$lib/stores/logsStore';
-	import { get } from 'svelte/store';
+	import { logsStore } from '$lib/stores/logsStore';
 	import { RefreshCw } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
@@ -60,21 +59,25 @@
 	];
 
 	// Calculate user mastery per pattern
+	// Only calculate for problems that have logs (have been attempted)
 	const userMastery = $derived.by(() => {
 		const patternMap = new Map<Pattern, { total: number; optimal: number }>();
 
-		get(problemsWithLogs).forEach((problem: ProblemWithLogs) => {
-			problem.patterns.forEach((pattern: Pattern) => {
-				if (!patternMap.has(pattern)) {
-					patternMap.set(pattern, { total: 0, optimal: 0 });
-				}
-				const stats = patternMap.get(pattern)!;
-				stats.total++;
-				if (problem.lastLog?.status === 'Optimal') {
-					stats.optimal++;
-				}
+		// Filter to only problems with logs to avoid counting unattempted problems
+		logsStore.problemsWithLogs
+			.filter(problem => problem.logs.length > 0)
+			.forEach((problem: ProblemWithLogs) => {
+				problem.patterns.forEach((pattern: Pattern) => {
+					if (!patternMap.has(pattern)) {
+						patternMap.set(pattern, { total: 0, optimal: 0 });
+					}
+					const stats = patternMap.get(pattern)!;
+					stats.total++;
+					if (problem.lastLog?.status === 'Optimal') {
+						stats.optimal++;
+					}
+				});
 			});
-		});
 
 		const mastery: Record<string, number> = {};
 		patternMap.forEach((stats, pattern) => {
@@ -141,15 +144,23 @@
 	</div>
 
 	<div class="h-[320px] w-full">
-		{#if chartData.labels.length > 0}
+		{#if isRefreshing}
+			<div class="flex h-full items-center justify-center text-muted-foreground">
+				Loading company data...
+			</div>
+		{:else if chartData.labels.length > 0}
 			<RadarChart
 				labels={chartData.labels}
 				primaryData={chartData.primary}
 				comparisonData={chartData.comparison}
 			/>
-		{:else}
+		{:else if !currentCompanyData}
 			<div class="flex h-full items-center justify-center text-muted-foreground">
 				Select a company to see the comparison.
+			</div>
+		{:else}
+			<div class="flex h-full items-center justify-center text-muted-foreground">
+				No data available for this company.
 			</div>
 		{/if}
 	</div>

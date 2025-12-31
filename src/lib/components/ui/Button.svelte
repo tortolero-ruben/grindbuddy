@@ -5,7 +5,7 @@
 		class?: string;
 		disabled?: boolean;
 		type?: 'button' | 'submit' | 'reset';
-		onclick?: () => void;
+		onclick?: ((e: MouseEvent) => void) | (() => void);
 		children: any;
 	}
 
@@ -30,12 +30,18 @@
 		md: 'px-4 py-2 text-base',
 		lg: 'px-6 py-3 text-lg'
 	};
+
+	function handleClick(e: MouseEvent) {
+		if (disabled || !onclick) return;
+		// Call onclick - it may or may not use the event parameter
+		onclick(e);
+	}
 </script>
 
 <button
 	class="inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 disabled:opacity-50 disabled:pointer-events-none {variantClasses[variant]} {sizeClasses[size]} {className}"
 	{disabled}
-	onclick={onclick}
+	onclick={handleClick}
 	{type}
 >
 	{@render children()}

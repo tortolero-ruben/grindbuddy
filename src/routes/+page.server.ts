@@ -25,16 +25,34 @@ export const actions: Actions = {
         }
 
         try {
+            const logId = randomUUID();
+            const timestamp = new Date();
+            
             await db.insert(logs).values({
-                id: randomUUID(),
+                id: logId,
                 userId: session.user.id,
                 problemId,
                 status,
                 timeComplexity: timeComplexity || undefined,
                 spaceComplexity: spaceComplexity || undefined,
                 notes,
-                timestamp: new Date()
+                timestamp
             });
+            
+            // Return the created log so the client can update the store
+            // Note: userId is excluded as it's not part of the client-side Log type
+            return {
+                success: true,
+                log: {
+                    id: logId,
+                    problemId,
+                    status,
+                    timeComplexity: timeComplexity || undefined,
+                    spaceComplexity: spaceComplexity || undefined,
+                    notes: notes || '',
+                    timestamp
+                }
+            };
         } catch (e) {
             console.error('Failed to create log:', e);
             return fail(500, { message: 'Failed to create log' });

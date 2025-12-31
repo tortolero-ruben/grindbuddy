@@ -1,22 +1,26 @@
 // Svelte 5 runes - modern reactive state management
-// Direct runes usage for optimal performance and DX
+// Re-export runes-based store for direct access without get()
 
-import { writable, derived } from 'svelte/store';
+import { logsStore } from './logsStore.svelte';
 import type { Log, Problem, ProblemWithLogs } from '$lib/types/index';
 
-// Core stores
-export const logs = writable<Log[]>([]);
-export const problems = writable<Problem[]>([]);
-export const isSearchModalOpen = writable(false);
-export const isLogModalOpen = writable(false);
-export const isDetailsModalOpen = writable(false);
-export const selectedProblem = writable<Problem | null>(null);
-export const selectedDetailsProblem = writable<ProblemWithLogs | null>(null);
+// Export the store instance so runes maintain reactivity
+export { logsStore };
+
+// Export runes-based state directly (accessing through store instance maintains reactivity)
+export const logs = logsStore.logs;
+export const problems = logsStore.problems;
+export const isSearchModalOpen = logsStore.isSearchModalOpen;
+export const isLogModalOpen = logsStore.isLogModalOpen;
+export const isDetailsModalOpen = logsStore.isDetailsModalOpen;
+export const selectedProblem = logsStore.selectedProblem;
+export const selectedDetailsProblem = logsStore.selectedDetailsProblem;
+export const problemsWithLogs = logsStore.problemsWithLogs;
+export const reviewQueue = logsStore.reviewQueue;
 
 // Initialize stores with data from server
 export function initializeStores(data: { problems: Problem[]; logs: Log[] }) {
-	logs.set(data.logs);
-	problems.set(data.problems);
+	logsStore.initialize(data);
 }
 
 // Helper function to get logs for a problem
@@ -32,55 +36,35 @@ export function getLastLogForProblem(problemId: string, logs: Log[]): Log | unde
 	return problemLogs[0];
 }
 
-// Derived stores - reactive computed values
-export const problemsWithLogs = derived([problems, logs], ([$problems, $logs]) => {
-	return $problems.map((problem) => ({
-		...problem,
-		logs: $logs.filter((log) => log.problemId === problem.id),
-		lastLog: getLastLogForProblem(problem.id, $logs)
-	}));
-});
-
-export const reviewQueue = derived(problemsWithLogs, ($problemsWithLogs) => {
-	return $problemsWithLogs.filter((problem) => {
-		if (!problem.lastLog) return false; // Never logged, NOT in review queue
-		if (problem.lastLog.status === 'Failed') return true; // Failed problems need review
-
-		const daysSinceLastLog =
-			(Date.now() - new Date(problem.lastLog.timestamp).getTime()) / (1000 * 60 * 60 * 24);
-		return daysSinceLastLog >= 1; // Review if last log was 1+ days ago
-	});
-});
-
 // Actions to mutate state
 export function addLog(log: Log) {
-	logs.update((currentLogs) => [...currentLogs, log]);
+	logsStore.addLog(log);
+}
+
+export function updateLogs(logs: Log[]) {
+	logsStore.updateLogs(logs);
 }
 
 export function openSearchModal() {
-	isSearchModalOpen.set(true);
+	logsStore.openSearchModal();
 }
 
 export function closeSearchModal() {
-	isSearchModalOpen.set(false);
+	logsStore.closeSearchModal();
 }
 
 export function openLogModal(problem: Problem) {
-	selectedProblem.set(problem);
-	isLogModalOpen.set(true);
+	logsStore.openLogModal(problem);
 }
 
 export function closeLogModal() {
-	isLogModalOpen.set(false);
-	selectedProblem.set(null);
+	logsStore.closeLogModal();
 }
 
 export function openDetailsModal(problem: ProblemWithLogs) {
-	selectedDetailsProblem.set(problem);
-	isDetailsModalOpen.set(true);
+	logsStore.openDetailsModal(problem);
 }
 
 export function closeDetailsModal() {
-	isDetailsModalOpen.set(false);
-	selectedDetailsProblem.set(null);
+	logsStore.closeDetailsModal();
 }

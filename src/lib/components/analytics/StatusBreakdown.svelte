@@ -2,8 +2,7 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import ChartJS, { type Chart, type ChartConfiguration } from 'chart.js/auto';
-	import { logs } from '$lib/stores/logsStore';
-import { get } from 'svelte/store';
+	import { logsStore } from '$lib/stores/logsStore';
 	import type { Status, Log } from '$lib/types';
 
 	let canvasEl: HTMLCanvasElement | null = null;
@@ -18,7 +17,7 @@ import { get } from 'svelte/store';
 			Failed: 0
 		};
 
-		get(logs).forEach((log: Log) => {
+		logsStore.logs.forEach((log: Log) => {
 			counts[log.status]++;
 		});
 

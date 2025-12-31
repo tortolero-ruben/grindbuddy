@@ -1,28 +1,32 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import '../routes/layout.css';
 	import { ModeWatcher } from 'mode-watcher';
 	import DesktopNav from '$lib/components/nav/DesktopNav.svelte';
 	import MobileNav from '$lib/components/nav/MobileNav.svelte';
 	import ProblemSearchModal from '$lib/components/modals/ProblemSearchModal.svelte';
 	import LogDetailsModal from '$lib/components/modals/LogDetailsModal.svelte';
-	import { isSearchModalOpen, isLogModalOpen, isDetailsModalOpen, selectedDetailsProblem, closeSearchModal, closeLogModal, closeDetailsModal, initializeStores } from '$lib/stores/logsStore';
+	import { logsStore, closeSearchModal, closeLogModal, closeDetailsModal, initializeStores, updateLogs } from '$lib/stores/logsStore';
 	import ProblemDetailsModal from '$lib/components/modals/ProblemDetailsModal.svelte';
 	import { onMount } from 'svelte';
 
 	let { data, children } = $props();
 	
+	let initialized = $state(false);
+	
+	// Initialize stores only once on mount
 	$effect(() => {
-		if (data.problems && data.logs) {
+		if (!initialized && data.problems && data.logs) {
 			initializeStores({ problems: data.problems, logs: data.logs });
+			initialized = true;
 		}
 	});
 
 	const isAuthRoute = $derived(
-		$page.url.pathname.startsWith('/login') || $page.url.pathname.startsWith('/register')
+		page.url.pathname.startsWith('/login') || page.url.pathname.startsWith('/register')
 	);
 	
-	const isHome = $derived($page.url.pathname === '/');
+	const isHome = $derived(page.url.pathname === '/');
 </script>
 
 <ModeWatcher defaultMode="light" />
@@ -45,7 +49,7 @@
 </div>
 
 {#if !isAuthRoute && !isHome}
-	<ProblemSearchModal open={$isSearchModalOpen} onClose={closeSearchModal} />
-	<LogDetailsModal open={$isLogModalOpen} onClose={closeLogModal} />
-	<ProblemDetailsModal open={$isDetailsModalOpen} onClose={closeDetailsModal} problem={$selectedDetailsProblem} />
+	<ProblemSearchModal open={logsStore.isSearchModalOpen} onClose={closeSearchModal} />
+	<LogDetailsModal open={logsStore.isLogModalOpen} onClose={closeLogModal} />
+	<ProblemDetailsModal open={logsStore.isDetailsModalOpen} onClose={closeDetailsModal} problem={logsStore.selectedDetailsProblem} />
 {/if}
