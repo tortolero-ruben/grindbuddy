@@ -51,7 +51,7 @@
 </script>
 
 {#if problem}
-	<Dialog {open} {onClose} class="max-w-3xl">
+	<Dialog {open} {onClose} class="max-w-4xl">
 		<div class="relative p-0 overflow-hidden">
 			<!-- Banner Color -->
 			<div
@@ -68,7 +68,7 @@
 						</h2>
 						<div class="flex flex-wrap items-center gap-2 mt-2">
 							<DifficultyBadge difficulty={problem.difficulty} />
-							{#each problem.patterns as pattern}
+							{#each problem.patterns as pattern (pattern)}
 								<PatternBadge {pattern} />
 							{/each}
 						</div>
@@ -107,7 +107,7 @@
 						<div class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
 							Actions
 						</div>
-						<div class="flex items-center gap-3">
+						<div class="flex flex-wrap items-center gap-3">
 							<a
 								href={problem.leetcodeUrl}
 								target="_blank"
@@ -117,6 +117,17 @@
 								<ExternalLink class="h-4 w-4" />
 								LeetCode
 							</a>
+							{#if problem.neetcodeUrl}
+								<a
+									href={problem.neetcodeUrl}
+									target="_blank"
+									rel="noopener noreferrer"
+									class="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+								>
+									<ExternalLink class="h-4 w-4" />
+									NeetCode
+								</a>
+							{/if}
 							<Button
 								variant="primary"
 								size="sm"

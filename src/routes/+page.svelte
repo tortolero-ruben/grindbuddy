@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { ArrowRight, Brain, Zap, TrendingUp } from '@lucide/svelte';
-	import ModeToggle from '$lib/components/ModeToggle.svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';
 </script>
@@ -19,7 +18,6 @@
 			Grind<span class="text-primary">Buddy</span>
 		</a>
 		<div class="flex items-center gap-4">
-			<ModeToggle />
 			<a
 				href="/login"
 				class="text-sm font-medium hover:text-primary transition-colors"

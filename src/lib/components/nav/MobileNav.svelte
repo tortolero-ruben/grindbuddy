@@ -4,6 +4,7 @@
 	import { openSearchModal } from '$lib/stores/logsStore';
 	import { signOut } from '$lib/auth-client';
 	import { goto } from '$app/navigation';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 
 	type UserType = App.Locals['user'];
 	let { user }: { user: UserType | null } = $props();
@@ -36,6 +37,9 @@
 				{item.label}
 			</a>
 		{/each}
+		<div class="flex flex-col items-center justify-center px-4 py-2">
+			<ModeToggle />
+		</div>
 		{#if user}
 			<button
 				onclick={handleLogout}

@@ -9,6 +9,7 @@
 	import { logsStore, closeSearchModal, closeLogModal, closeDetailsModal, initializeStores, updateLogs } from '$lib/stores/logsStore';
 	import ProblemDetailsModal from '$lib/components/modals/ProblemDetailsModal.svelte';
 	import { onMount } from 'svelte';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 
 	let { data, children } = $props();
 	
@@ -40,6 +41,12 @@
 		{#if !isAuthRoute && !isHome}
 			<DesktopNav user={data.user} />
 			<MobileNav user={data.user} />
+		{/if}
+
+		{#if isAuthRoute || isHome}
+			<div class="fixed top-4 right-4 z-50">
+				<ModeToggle />
+			</div>
 		{/if}
 
 		<main class={isAuthRoute ? 'py-12' : isHome ? '' : 'pt-16 pb-16 md:pb-0'}>

@@ -34,6 +34,7 @@ export interface Problem {
 	difficulty: Difficulty;
 	patterns: Pattern[];
 	leetcodeUrl: string;
+	neetcodeUrl?: string;
 }
 
 export interface Log {

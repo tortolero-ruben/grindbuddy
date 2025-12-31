@@ -5,6 +5,7 @@
 	import { openSearchModal } from '$lib/stores/logsStore';
 	import { signOut } from '$lib/auth-client';
 	import { goto } from '$app/navigation';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 
 	type UserType = App.Locals['user'];
 
@@ -54,6 +55,7 @@
 			<!-- Right side: User avatar and Log Problem button -->
 			{#if user}
 				<div class="flex items-center gap-4">
+					<ModeToggle />
 					<Button onclick={openSearchModal} variant="primary" size="sm">
 						<Plus class="mr-2 h-4 w-4" />
 						Log Problem
@@ -72,6 +74,7 @@
 				</div>
 			{:else}
 				<div class="flex items-center gap-3">
+					<ModeToggle />
 					<a
 						href="/login"
 						class="text-sm font-medium text-slate-700 hover:text-indigo-600 dark:text-slate-200 dark:hover:text-indigo-300"
