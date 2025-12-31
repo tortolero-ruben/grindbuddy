@@ -63,7 +63,7 @@
 </script>
 
 {#if logsStore.selectedProblem}
-	<Dialog {open} {onClose} class="md:flex">
+	<Dialog {open} {onClose} class="max-w-2xl">
 		<div class="p-6">
 			<!-- Header -->
 			<div class="mb-6">

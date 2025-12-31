@@ -49,7 +49,7 @@
 		tabindex="0"
 	>
 		<div
-			class="relative bg-white dark:bg-slate-900 rounded-lg shadow-lg {className || 'max-w-lg'} w-full mx-4 max-h-[90vh] overflow-y-auto {isMobile
+			class="relative bg-white dark:bg-slate-900 rounded-lg shadow-lg {className || 'max-w-lg'} {isMobile ? 'w-full' : 'w-auto'} mx-4 max-h-[90vh] overflow-y-auto {isMobile
 				? 'rounded-t-lg rounded-b-none mb-0'
 				: ''}"
 		>

@@ -7,7 +7,7 @@
 	import HistoryTimeline from '$lib/components/logbook/HistoryTimeline.svelte';
 	import { ExternalLink } from '@lucide/svelte';
 	import type { ProblemWithLogs, Problem } from '$lib/types';
-	import { openDetailsModal } from '$lib/stores/logsStore';
+	import { openDetailsModal, openLogModal } from '$lib/stores/logsStore';
 
 	function formatRelativeTime(date: Date): string {
 		const now = new Date();

@@ -25,6 +25,37 @@
 
 	let canvasEl: HTMLCanvasElement | null = null;
 	let chart: Chart | null = null;
+	let isDarkMode = $state(false);
+
+	// Watch for theme changes and update state
+	$effect(() => {
+		if (!browser) return;
+		
+		const checkDarkMode = () => {
+			const htmlEl = document.documentElement;
+			isDarkMode = htmlEl.classList.contains('dark') || 
+				window.matchMedia('(prefers-color-scheme: dark)').matches;
+		};
+		
+		// Initial check
+		checkDarkMode();
+		
+		// Watch for class changes on html element
+		const observer = new MutationObserver(checkDarkMode);
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['class']
+		});
+		
+		// Also listen to media query changes
+		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+		mediaQuery.addEventListener('change', checkDarkMode);
+		
+		return () => {
+			observer.disconnect();
+			mediaQuery.removeEventListener('change', checkDarkMode);
+		};
+	});
 
 	function toRgba(color: string, alpha: number) {
 		if (!color) return `rgba(0,0,0,${alpha})`;
@@ -152,9 +183,12 @@
 				legend: {
 					position: 'top',
 					labels: {
-						color: 'rgb(203, 213, 225)', // slate-300 (lighter for dark mode)
+						color: isDarkMode 
+							? 'rgb(203, 213, 225)' // slate-300 for dark mode
+							: 'rgb(15, 23, 42)', // slate-900 for light mode (much darker)
 						font: {
-							size: 13
+							size: 13,
+							weight: '500'
 						}
 					}
 				},
@@ -176,11 +210,21 @@
 							return `${dataset.label}: ${percentage}%`;
 						}
 					},
-					backgroundColor: 'rgba(15, 23, 42, 0.9)', // slate-900
-					titleColor: 'rgb(241, 245, 249)', // slate-100
-					bodyColor: 'rgb(226, 232, 240)', // slate-200
+					backgroundColor: isDarkMode 
+						? 'rgba(15, 23, 42, 0.9)' // slate-900 for dark mode
+						: 'rgba(255, 255, 255, 0.95)', // white for light mode
+					titleColor: isDarkMode 
+						? 'rgb(241, 245, 249)' // slate-100 for dark mode
+						: 'rgb(15, 23, 42)', // slate-900 for light mode
+					bodyColor: isDarkMode 
+						? 'rgb(226, 232, 240)' // slate-200 for dark mode
+						: 'rgb(51, 65, 85)', // slate-700 for light mode
 					padding: 12,
-					cornerRadius: 8
+					cornerRadius: 8,
+					borderColor: isDarkMode 
+						? 'rgba(255, 255, 255, 0.1)' // subtle border for dark mode
+						: 'rgba(0, 0, 0, 0.1)', // subtle border for light mode
+					borderWidth: 1
 				}
 			},
 			scales: {
@@ -193,18 +237,25 @@
 						stepSize: dynamicStepSize // Adjust step size based on total questions answered
 					},
 					angleLines: {
-						color: 'rgba(255, 255, 255, 0.15)', // slightly more visible for web effect
-						lineWidth: 1
+						color: isDarkMode 
+							? 'rgba(255, 255, 255, 0.15)' // white for dark mode
+							: 'rgba(0, 0, 0, 0.2)', // darker black for light mode (more visible)
+						lineWidth: 1.5
 					},
 					grid: {
-						color: 'rgba(255, 255, 255, 0.1)', // faint white
-						lineWidth: 1
+						color: isDarkMode 
+							? 'rgba(255, 255, 255, 0.1)' // faint white for dark mode
+							: 'rgba(0, 0, 0, 0.15)', // darker black for light mode (more visible)
+						lineWidth: 1.5
 					},
 					pointLabels: {
-						color: 'rgb(226, 232, 240)', // slate-200 (much lighter)
+						color: isDarkMode 
+							? 'rgb(226, 232, 240)' // slate-200 for dark mode
+							: 'rgb(15, 23, 42)', // slate-900 for light mode (much darker, more readable)
 						font: {
 							size: 12,
-							family: "'Inter', sans-serif"
+							family: "'Inter', sans-serif",
+							weight: '500'
 						},
 						callback: (label: string) => {
 							// Truncate long labels
@@ -224,6 +275,7 @@
 		// Destroy existing chart if it exists
 		if (chart) {
 			chart.destroy();
+			chart = null;
 		}
 
 		// Create a new chart instance with the fresh config
@@ -232,8 +284,10 @@
 		chart = new ChartJS(canvasEl, configCopy);
 
 		return () => {
-			chart?.destroy();
-			chart = null;
+			if (chart) {
+				chart.destroy();
+				chart = null;
+			}
 		};
 	});
 
