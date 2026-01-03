@@ -4,7 +4,6 @@
 	import { openSearchModal } from '$lib/stores/logsStore';
 	import { signOut } from '$lib/auth-client';
 	import { goto } from '$app/navigation';
-	import ModeToggle from '$lib/components/ModeToggle.svelte';
 
 	type UserType = App.Locals['user'];
 	let { user }: { user: UserType | null } = $props();
@@ -22,13 +21,13 @@
 </script>
 
 <nav
-	class="fixed bottom-0 left-0 right-0 z-40 h-16 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 md:hidden"
+	class="fixed bottom-0 left-0 right-0 z-40 h-16 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 md:hidden overflow-visible"
 >
-	<div class="flex h-full items-center justify-around">
+	<div class="flex h-full items-center justify-around px-2">
 		{#each navItems as item (item.path)}
 			<a
 				href={item.path}
-				class="flex flex-col items-center justify-center gap-1 px-4 py-2 text-xs font-medium transition-colors {page
+				class="flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] px-4 py-2 text-xs font-medium transition-colors {page
 					.url.pathname === item.path
 					? 'text-indigo-600 dark:text-indigo-400'
 					: 'text-slate-600 dark:text-slate-400'}"
@@ -37,13 +36,10 @@
 				{item.label}
 			</a>
 		{/each}
-		<div class="flex flex-col items-center justify-center px-4 py-2">
-			<ModeToggle />
-		</div>
 		{#if user}
 			<button
 				onclick={handleLogout}
-				class="flex flex-col items-center justify-center px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300"
+				class="flex flex-col items-center justify-center gap-1 min-h-[44px] min-w-[44px] px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 transition-colors"
 			>
 				<LogOut class="h-6 w-6" />
 				Logout

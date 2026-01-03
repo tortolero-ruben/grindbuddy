@@ -4,12 +4,24 @@
 	import ActivityHeatmap from '$lib/components/analytics/ActivityHeatmap.svelte';
 	import StatusBreakdown from '$lib/components/analytics/StatusBreakdown.svelte';
 	import SkillMatch from '$lib/components/analytics/SkillMatch.svelte';
+	import { logsStore } from '$lib/stores/logsStore';
+	import { browser } from '$app/environment';
+
+	// Check if data is loaded
+	const isDataLoaded = $derived(
+		browser && logsStore.problems.length > 0
+	);
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
 	<h1 class="mb-4 text-h1">Analytics</h1>
 
-	<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+	{#if !isDataLoaded}
+		<div class="flex h-64 items-center justify-center text-muted-foreground">
+			Loading analytics data...
+		</div>
+	{:else}
+		<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 		<!-- Pattern Mastery Radar -->
 		<Card class="p-6 flex flex-col min-h-[800px]">
 			<div class="flex flex-col h-full">
@@ -41,5 +53,6 @@
 			<h2 class="mb-4 text-h2">Status Breakdown</h2>
 			<StatusBreakdown />
 		</Card>
-	</div>
+		</div>
+	{/if}
 </div>

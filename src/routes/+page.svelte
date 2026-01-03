@@ -2,6 +2,7 @@
 	import { ArrowRight, Brain, Zap, TrendingUp } from '@lucide/svelte';
 	import Card from '$lib/components/ui/Card.svelte';
 	import RadarChart from '$lib/components/common/RadarChart.svelte';
+	import ModeToggle from '$lib/components/ModeToggle.svelte';
 </script>
 
 <div class="relative overflow-hidden">
@@ -18,6 +19,7 @@
 			Grind<span class="text-primary">Buddy</span>
 		</a>
 		<div class="flex items-center gap-4">
+			<ModeToggle />
 			<a
 				href="/login"
 				class="text-sm font-medium hover:text-primary transition-colors"

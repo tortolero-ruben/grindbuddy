@@ -4,6 +4,7 @@
 	import DifficultyBadge from '$lib/components/ui/DifficultyBadge.svelte';
 	import HistoryTimeline from './HistoryTimeline.svelte';
 	import type { ProblemWithLogs } from '$lib/types';
+	import { viewportStore } from '$lib/stores/viewportStore.svelte';
 
 	function formatRelativeTime(date: Date): string {
 		const now = new Date();
@@ -44,6 +45,8 @@
 
 	let { problems }: Props = $props();
 
+	const isMobile = $derived(viewportStore.isMobile);
+
 	function openDetails(problem: ProblemWithLogs) {
 		openDetailsModal(problem);
 	}
@@ -66,7 +69,10 @@
 					onclick={() => openDetails(problem)}
 				>
 					<td class="px-4 py-3">
-						<div class="font-mono font-semibold">#{problem.number} {problem.title}</div>
+						<div class="font-mono font-semibold whitespace-nowrap">
+							#{problem.number}
+							{problem.title}
+						</div>
 						<DifficultyBadge difficulty={problem.difficulty} />
 					</td>
 					<td class="px-4 py-3">
@@ -79,14 +85,14 @@
 							{/if}
 						</div>
 					</td>
-					<td class="px-4 py-3">
+					<td class="px-4 py-3 whitespace-nowrap">
 						{#if problem.lastLog}
 							<StatusBadge status={problem.lastLog.status} />
 						{:else}
 							<span class="text-slate-400">Never</span>
 						{/if}
 					</td>
-					<td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
+					<td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">
 						{#if problem.lastLog}
 							{formatRelativeTime(problem.lastLog.timestamp)}
 						{:else}
@@ -98,3 +104,11 @@
 		</tbody>
 	</table>
 </div>
+<!-- Scroll indicator -->
+{#if isMobile}
+	<div class="flex justify-end mt-2">
+		<span class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+			← Scroll to see more →
+		</span>
+	</div>
+{/if}

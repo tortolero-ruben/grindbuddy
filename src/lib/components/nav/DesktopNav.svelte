@@ -26,21 +26,21 @@
 <nav
 	class="fixed top-0 left-0 right-0 z-40 h-16 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800"
 >
-	<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-		<div class="flex h-16 items-center justify-between">
+	<div class="mx-auto max-w-7xl px-2 sm:px-4 lg:px-8">
+		<div class="flex h-16 items-center justify-between gap-2">
 			<!-- Logo and nav links -->
-			<div class="flex items-center gap-8">
+			<div class="flex items-center gap-4 sm:gap-8 min-w-0 flex-shrink">
 				<a
 					href={user ? '/dashboard' : '/'}
-					class="text-xl font-bold text-slate-900 dark:text-slate-50"
+					class="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 whitespace-nowrap"
 				>
 					GrindBuddy
 				</a>
-				<div class="hidden md:flex items-center gap-6">
+				<div class="hidden md:flex items-center gap-4 lg:gap-6">
 					{#each navItems as item (item.path)}
 						<a
 							href={item.path}
-							class="flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors {page
+							class="flex items-center gap-2 px-2 lg:px-3 py-2 text-sm font-medium transition-colors whitespace-nowrap {page
 								.url.pathname === item.path
 								? 'text-indigo-600 dark:text-indigo-400'
 								: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50'}"
@@ -54,22 +54,24 @@
 
 			<!-- Right side: User avatar and Log Problem button -->
 			{#if user}
-				<div class="flex items-center gap-4">
+				<div class="flex items-center gap-1.5 sm:gap-2 lg:gap-3 flex-shrink-0">
 					<ModeToggle />
-					<Button onclick={openSearchModal} variant="primary" size="sm">
-						<Plus class="mr-2 h-4 w-4" />
-						Log Problem
-					</Button>
+					<div class="hidden md:block">
+						<Button onclick={openSearchModal} variant="primary" size="sm">
+							<Plus class="mr-1.5 sm:mr-2 h-4 w-4" />
+							<span class="hidden lg:inline">Log Problem</span>
+						</Button>
+					</div>
 					<div
-						class="flex items-center gap-3 rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-700 dark:text-slate-200"
+						class="flex items-center gap-1.5 sm:gap-2 rounded-full bg-slate-100 dark:bg-slate-800 px-1.5 sm:px-2 py-1.5 text-sm text-slate-700 dark:text-slate-200"
 					>
 						<div
-							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-50"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-50 flex-shrink-0"
 						>
 							{#if user?.name}{user.name.slice(0, 1)}{:else}<User class="h-4 w-4" />{/if}
 						</div>
-						<span class="hidden md:inline">{user.name}</span>
-						<Button onclick={handleLogout} variant="ghost" size="sm">Logout</Button>
+						<span class="hidden xl:inline">{user.name}</span>
+						<Button onclick={handleLogout} variant="ghost" size="sm" class="px-2 sm:px-3">Logout</Button>
 					</div>
 				</div>
 			{:else}
