@@ -63,7 +63,7 @@
 </script>
 
 {#if logsStore.selectedProblem}
-	<Dialog {open} {onClose} class="max-w-2xl">
+	<Dialog {open} {onClose} class="max-w-2xl w-full">
 		<div class="p-6">
 			<!-- Header -->
 			<div class="mb-6">
@@ -94,9 +94,10 @@
 									timeComplexity: logData.timeComplexity,
 									spaceComplexity: logData.spaceComplexity,
 									notes: logData.notes || '',
-									timestamp: logData.timestamp instanceof Date 
-										? logData.timestamp 
-										: new Date(logData.timestamp)
+									timestamp:
+										logData.timestamp instanceof Date
+											? logData.timestamp
+											: new Date(logData.timestamp)
 								};
 								addLog(newLog);
 								onClose();
@@ -124,7 +125,7 @@
 							{@const isSelected = outcome === status}
 							<button
 								type="button"
-								class="flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-colors {isSelected
+								class="flex flex-col items-center gap-2 rounded-lg border-2 p-3 transition-colors min-h-[88px] {isSelected
 									? `${statusColors[status]} border-transparent text-white`
 									: 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 hover:bg-slate-50 dark:hover:bg-slate-900'}"
 								onclick={() => (outcome = status)}
@@ -175,7 +176,9 @@
 				</div>
 
 				<!-- Footer -->
-				<div class="flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
+				<div
+					class="sticky bottom-0 flex justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10"
+				>
 					<Button variant="secondary" onclick={onClose} type="button">Cancel</Button>
 					<Button variant="primary" disabled={!canSave} type="submit">Save Log</Button>
 				</div>

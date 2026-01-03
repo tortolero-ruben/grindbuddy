@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { onMount } from 'svelte';
 	import ChartJS, { type Chart, type ChartConfiguration } from 'chart.js/auto';
 	import { logsStore } from '$lib/stores/logsStore';
 	import type { Status, Log } from '$lib/types';
@@ -60,9 +59,20 @@
 		return { type: 'doughnut', data, options } satisfies ChartConfiguration;
 	});
 
-	onMount(() => {
+	// Create and update chart reactively
+	$effect(() => {
 		if (!browser || !canvasEl) return;
-		chart = new ChartJS(canvasEl, chartConfig);
+
+		// Create chart if it doesn't exist
+		if (!chart) {
+			chart = new ChartJS(canvasEl, chartConfig);
+		} else {
+			// Update existing chart with new data
+			chart.data = chartConfig.data;
+			chart.update();
+		}
+
+		// Cleanup on unmount
 		return () => {
 			chart?.destroy();
 			chart = null;

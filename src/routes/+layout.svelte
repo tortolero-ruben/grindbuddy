@@ -43,7 +43,7 @@
 			<MobileNav user={data.user} />
 		{/if}
 
-		{#if isAuthRoute || isHome}
+		{#if isAuthRoute}
 			<div class="fixed top-4 right-4 z-50">
 				<ModeToggle />
 			</div>

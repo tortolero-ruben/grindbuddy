@@ -20,12 +20,13 @@
 	let searchInput: HTMLInputElement;
 
 	const searchResults = $derived(
-		!searchQuery.trim() 
-			? [] 
-			: logsStore.problems.filter(p => 
-					p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-					p.number.toString().includes(searchQuery)
-			  )
+		!searchQuery.trim()
+			? []
+			: logsStore.problems.filter(
+					(p) =>
+						p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+						p.number.toString().includes(searchQuery)
+				)
 	);
 
 	$effect(() => {
@@ -55,7 +56,7 @@
 	}
 </script>
 
-<Dialog {open} {onClose} class="md:flex">
+<Dialog {open} {onClose}>
 	<div class="p-6">
 		<h2 class="mb-4 text-xl font-semibold">Search Problems</h2>
 
@@ -63,24 +64,24 @@
 			bind:this={searchInput}
 			bind:value={searchQuery}
 			placeholder="Type a problem name or number..."
-			class="flex h-10 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-lg ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 mb-4"
+			class="flex h-12 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-4 py-3 text-base ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 mb-4 text-lg"
 			onkeydown={handleKeyDown}
 		/>
 
 		{#if searchQuery.trim()}
 			{#if searchResults.length > 0}
-				<ul class="max-h-96 overflow-y-auto">
+				<ul class="max-h-96 overflow-y-auto -mx-6 px-6">
 					{#each searchResults as result, index (result.id)}
 						<li>
 							<button
-								class="w-full px-4 py-3 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {selectedIndex ===
+								class="w-full px-4 py-4 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors {selectedIndex ===
 								index
 									? 'bg-slate-100 dark:bg-slate-800'
-									: ''}"
+									: ''} min-h-[60px] flex items-center"
 								onclick={() => selectProblem(result)}
 							>
-								<div class="flex items-center justify-between">
-									<span class="font-mono font-semibold">
+								<div class="flex items-center justify-between gap-2 flex-wrap">
+									<span class="font-mono font-semibold text-base">
 										#{result.number}
 										{result.title}
 									</span>
